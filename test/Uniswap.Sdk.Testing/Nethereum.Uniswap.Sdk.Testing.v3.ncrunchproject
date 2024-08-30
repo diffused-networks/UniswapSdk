@@ -1,0 +1,24 @@
+﻿<ProjectConfiguration>
+  <Settings>
+    <IgnoredTests>
+      <NamedTestSelector>
+        <TestName>PriceTests.Constructor_ArrayFormat_Works</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>PriceTests.Constructor_ObjectFormat_Works</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>PriceTests.Quote_ReturnsCorrectValue</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>PriceTests.ToSignificant_NoDecimals</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>PriceTests.ToSignificant_NoDecimalsFlipRatio</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>PriceTests.ToSignificant_WithDecimalDifferenceFlippedBaseQuoteFlipped</TestName>
+      </NamedTestSelector>
+    </IgnoredTests>
+  </Settings>
+</ProjectConfiguration>
