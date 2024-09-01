@@ -1,0 +1,30 @@
+﻿using System.Numerics;
+using Uniswap.Sdk.V3.Utils;
+
+namespace Uniswap.Sdk.V3.Entities;
+
+public class TickListDataProvider : ITickDataProvider
+{
+    private readonly IReadOnlyList<Tick> ticks;
+
+    public TickListDataProvider(IEnumerable<Tick> ticks, int tickSpacing)
+    {
+        var ticksList = new List<Tick>();
+        foreach (var t in ticks)
+        {
+            ticksList.Add(t is Tick tick ? tick : new Tick(t.Index, t.LiquidityGross,t.LiquidityNet));
+        }
+        TickList.ValidateList(ticksList, tickSpacing);
+        this.ticks = ticksList;
+    }
+
+    public async Task<Tick> GetTick(int tick)
+    {
+        return await Task.FromResult(TickList.GetTick(ticks, tick));
+    }
+
+    public async Task<(int nextTick, bool initialized)> NextInitializedTickWithinOneWord(int tick, bool lte, int tickSpacing)
+    {
+        return await Task.FromResult(TickList.NextInitializedTickWithinOneWord(ticks, tick, lte, tickSpacing));
+    }
+}

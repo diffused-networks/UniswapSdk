@@ -11,7 +11,7 @@ public class CurrencyAmount<T> : Fraction, IEquatable<CurrencyAmount<T>> where T
     public T Currency { get; }
     public BigInteger DecimalScale { get; }
 
-    public static CurrencyAmount<T2> FromRawAmount<T2>(T2 currency, BigInteger rawAmount) where T2 :BaseCurrency
+    public static CurrencyAmount<T2> FromRawAmount<T2>(T2 currency, BigInteger rawAmount) where T2 : BaseCurrency
     {
         return new CurrencyAmount<T2>(currency, rawAmount);
     }
@@ -83,7 +83,7 @@ public class CurrencyAmount<T> : Fraction, IEquatable<CurrencyAmount<T>> where T
         return string.Format(format, ((decimal)Quotient / (decimal)DecimalScale).ToString("G" + Currency.Decimals, CultureInfo.InvariantCulture));
     }
 
-  
+    public CurrencyAmount<BaseCurrency>? AsBaseCurrency => new(this.Currency, Numerator, Denominator);
 
 
     public CurrencyAmount<Token>? Wrapped

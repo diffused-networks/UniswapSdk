@@ -1,5 +1,7 @@
 ﻿using System.Numerics;
+using System.Text.Encodings.Web;
 using System.Text.RegularExpressions;
+using Nethereum.Hex.HexConvertors.Extensions;
 using Nethereum.Util;
 
 namespace Uniswap.Sdk.Core.Utils;
@@ -152,7 +154,67 @@ public static class AddressValidator
     }
 
 
+    /// <summary>
+    /// Returns the address that would result from a CREATE for tx.
+    /// </summary>
+    public static string GetCreateAddress(string from, BigInteger nonce)
+    {
+        var addressUtil = new AddressUtil();
+        var fromAddress = addressUtil.ConvertToChecksumAddress(from);
 
+        string nonceHex = nonce.ToString("X");
+        if (nonceHex == "0")
+        {
+            nonceHex = "0x";
+        }
+        else if (nonceHex.Length % 2 != 0)
+        {
+            nonceHex = "0x0" + nonceHex;
+        }
+        else
+        {
+            nonceHex = "0x" + nonceHex;
+        }
+
+    
+        var encodedRlp = RlpEncoder.Encode(new[] { fromAddress.HexToByteArray(), nonceHex.HexToByteArray() });
+
+        var keccak = new Sha3Keccack();
+        var hash = keccak.CalculateHash(encodedRlp).ToHex();
+
+        return addressUtil.ConvertToChecksumAddress("0x" + hash.Substring(24));
+    }
+
+    /// <summary>
+    /// Returns the address that would result from a CREATE2 operation with the given from, salt and initCodeHash.
+    /// </summary>
+    public static string GetCreate2Address(string from, byte[] salt, byte[] initCodeHash)
+    {
+        var addressUtil = new AddressUtil();
+        var fromAddress = addressUtil.ConvertToChecksumAddress(from);
+
+        if (salt.Length != 32)
+        {
+            throw new ArgumentException("salt must be 32 bytes", nameof(salt));
+        }
+
+        if (initCodeHash.Length != 32)
+        {
+            throw new ArgumentException("initCodeHash must be 32 bytes", nameof(initCodeHash));
+        }
+
+        var prefix = new byte[] { 0xFF };
+        var concatenated = new byte[1 + 20 + 32 + 32];
+        Buffer.BlockCopy(prefix, 0, concatenated, 0, 1);
+        Buffer.BlockCopy(fromAddress.HexToByteArray(), 0, concatenated, 1, 20);
+        Buffer.BlockCopy(salt, 0, concatenated, 21, 32);
+        Buffer.BlockCopy(initCodeHash, 0, concatenated, 53, 32);
+
+        var keccak = new Sha3Keccack();
+        var hash = keccak.CalculateHash(concatenated).ToHex();
+
+        return addressUtil.ConvertToChecksumAddress("0x" + hash.Substring(24));
+    }
 
 
 }
