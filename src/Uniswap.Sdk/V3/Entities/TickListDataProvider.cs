@@ -12,7 +12,7 @@ public class TickListDataProvider : ITickDataProvider
         var ticksList = new List<Tick>();
         foreach (var t in ticks)
         {
-            ticksList.Add(t is Tick tick ? tick : new Tick(t.Index, t.LiquidityGross,t.LiquidityNet));
+            ticksList.Add(t);
         }
         TickList.ValidateList(ticksList, tickSpacing);
         this.ticks = ticksList;

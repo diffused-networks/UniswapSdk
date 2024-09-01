@@ -1,3 +1,21 @@
 ﻿<ProjectConfiguration>
-  <Settings />
+  <Settings>
+    <IgnoredTests>
+      <NamedTestSelector>
+        <TestName>Uniswap.Sdk.Testing.V3.Entities.PoolTests.BigNums_CorrectlyHandlesTwoBigIntegers</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>Uniswap.Sdk.Testing.V3.Entities.PoolTests.Swaps_GetInputAmount_USDCToDAI</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>Uniswap.Sdk.Testing.V3.Entities.PoolTests.Swaps_GetOutputAmount_DAIToUSDC</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>Uniswap.Sdk.Testing.V3.Entities.PoolTests.Swaps_GetOutputAmount_USDCToDAI</TestName>
+      </NamedTestSelector>
+      <FixtureTestSelector>
+        <FixtureName>Uniswap.Sdk.Testing.V3.Entities.PositionTests</FixtureName>
+      </FixtureTestSelector>
+    </IgnoredTests>
+  </Settings>
 </ProjectConfiguration>

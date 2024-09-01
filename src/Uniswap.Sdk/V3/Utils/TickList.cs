@@ -12,7 +12,7 @@ public static class TickList
         if (tickSpacing <= 0)
             throw new ArgumentException("TICK_SPACING_NONZERO");
 
-        if (!ticks.All(tick => tick.Index % tickSpacing == 0))
+        if (ticks.Any(tick => tick.Index % tickSpacing != 0))
             throw new ArgumentException("TICK_SPACING");
 
         if (ticks.Aggregate(ZERO, (acc, tick) => acc + tick.LiquidityNet) != ZERO)

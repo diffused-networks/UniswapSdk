@@ -18,6 +18,7 @@ public class Pool
         //if (!(fee is int) || fee >= 1_000_000)
         //    throw new ArgumentException("FEE");
 
+      
         var tickCurrentSqrtRatioX96 = TickMath.GetSqrtRatioAtTick(tickCurrent);
         var nextTickSqrtRatioX96 = TickMath.GetSqrtRatioAtTick(tickCurrent + 1);
         if (sqrtRatioX96 < tickCurrentSqrtRatioX96 || sqrtRatioX96 > nextTickSqrtRatioX96)
@@ -30,7 +31,7 @@ public class Pool
         SqrtRatioX96 = sqrtRatioX96;
         Liquidity = liquidity;
         TickCurrent = tickCurrent;
-        TickDataProvider = ticks is Tick[] tickArray
+        TickDataProvider = ticks is IEnumerable<Tick> tickArray
             ? new TickListDataProvider(tickArray, Constants.TICK_SPACINGS[fee])
             : ticks as ITickDataProvider ?? NO_TICK_DATA_PROVIDER_DEFAULT;
     }
@@ -83,7 +84,7 @@ public class Pool
         return token.Equals(Token0) ? Token0Price : Token1Price;
     }
 
-    public async Task<(CurrencyAmount<Token> outputAmount, Pool)> GetOutputAmount(CurrencyAmount<Token> inputAmount, BigInteger? sqrtPriceLimitX96 = null)
+    public async Task<(CurrencyAmount<Token> outputAmount, Pool pool)> GetOutputAmount(CurrencyAmount<Token> inputAmount, BigInteger? sqrtPriceLimitX96 = null)
     {
         if (!InvolvesToken(inputAmount.Currency))
         {
@@ -98,7 +99,7 @@ public class Pool
             new Pool(Token0, Token1, Fee, sqrtRatioX96, liquidity, tickCurrent, TickDataProvider));
     }
 
-    public async Task<(CurrencyAmount<Token>, Pool)> GetInputAmount(CurrencyAmount<Token> outputAmount, BigInteger? sqrtPriceLimitX96 = null)
+    public async Task<(CurrencyAmount<Token> inputAmount, Pool pool)> GetInputAmount(CurrencyAmount<Token> outputAmount, BigInteger? sqrtPriceLimitX96 = null)
     {
         if (!outputAmount.Currency.IsToken || !InvolvesToken(outputAmount.Currency))
         {
@@ -113,8 +114,7 @@ public class Pool
             new Pool(Token0, Token1, Fee, sqrtRatioX96, liquidity, tickCurrent, TickDataProvider));
     }
 
-    private async Task<(BigInteger amountCalculated, BigInteger sqrtRatioX96, BigInteger liquidity, int tickCurrent)> Swap(bool zeroForOne,
-        BigInteger amountSpecified, BigInteger? sqrtPriceLimitX96 = null)
+    private async Task<(BigInteger amountCalculated, BigInteger sqrtRatioX96, BigInteger liquidity, int tickCurrent)> Swap(bool zeroForOne, BigInteger amountSpecified, BigInteger? sqrtPriceLimitX96 = null)
     {
         return await V3Swap.ExecuteAsync(
             (int)Fee,

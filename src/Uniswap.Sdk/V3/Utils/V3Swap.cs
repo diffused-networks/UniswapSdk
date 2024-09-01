@@ -61,9 +61,11 @@ public static class V3Swap
             Tick = tickCurrent,
             Liquidity = liquidity
         };
-
-        while (state.AmountSpecifiedRemaining != ZERO && state.SqrtPriceX96 != sqrtPriceLimitX96)
+        var cnt = 0;
+        while (state.AmountSpecifiedRemaining != ZERO && state.SqrtPriceX96 != sqrtPriceLimitX96 && cnt <100)
         {
+         
+
             var step = new StepComputations();
             step.SqrtPriceStartX96 = state.SqrtPriceX96;
 
@@ -96,6 +98,13 @@ public static class V3Swap
                 fee
             );
 
+
+            Console.WriteLine("{0} {1} {2} {3} {4} {5} {6}", state.Liquidity, state.AmountSpecifiedRemaining, state.SqrtPriceX96, (zeroForOne
+                ? step.SqrtPriceNextX96 < sqrtPriceLimitX96
+                : step.SqrtPriceNextX96 > sqrtPriceLimitX96)
+                ? sqrtPriceLimitX96.Value
+                : step.SqrtPriceNextX96, step.AmountIn, step.AmountOut, step.FeeAmount);
+
             if (exactInput)
             {
                 state.AmountSpecifiedRemaining -= (step.AmountIn + step.FeeAmount);
@@ -123,6 +132,8 @@ public static class V3Swap
             {
                 state.Tick = TickMath.GetTickAtSqrtRatio(state.SqrtPriceX96);
             }
+
+            cnt++;
         }
 
         return (state.AmountCalculated, state.SqrtPriceX96, state.Liquidity, state.Tick);

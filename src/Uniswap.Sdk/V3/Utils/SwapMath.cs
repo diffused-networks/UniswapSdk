@@ -57,7 +57,7 @@ public abstract class SwapMath
             returnValues.AmountOut = zeroForOne
                 ? SqrtPriceMath.GetAmount1Delta(sqrtRatioTargetX96, sqrtRatioCurrentX96, liquidity, false)
                 : SqrtPriceMath.GetAmount0Delta(sqrtRatioCurrentX96, sqrtRatioTargetX96, liquidity, false);
-            if (BigInteger.Multiply(amountRemaining, Constants.NEGATIVE_ONE) >= returnValues.AmountOut)
+            if (amountRemaining * Constants.NEGATIVE_ONE >= returnValues.AmountOut)
             {
                 returnValues.SqrtRatioNextX96 = sqrtRatioTargetX96;
             }
@@ -66,7 +66,7 @@ public abstract class SwapMath
                 returnValues.SqrtRatioNextX96 = SqrtPriceMath.GetNextSqrtPriceFromOutput(
                     sqrtRatioCurrentX96,
                     liquidity,
-                    BigInteger.Multiply(amountRemaining, Constants.NEGATIVE_ONE),
+                    amountRemaining * Constants.NEGATIVE_ONE,
                     zeroForOne
                 );
             }

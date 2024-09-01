@@ -12,7 +12,7 @@ public class Tick
     public BigInteger LiquidityGross { get; }
     public BigInteger LiquidityNet { get; }
 
-    public Tick(int index, BigInteger liquidityGross, BigInteger liquidityNet)
+    public Tick(int index,  BigInteger liquidityNet, BigInteger liquidityGross)
     {
         if (index < MIN_TICK || index > MAX_TICK)
         {

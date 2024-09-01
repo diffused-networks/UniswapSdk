@@ -2,7 +2,7 @@
 using Uniswap.Sdk.Core;
 using Uniswap.Sdk.Core.Entities;
 using Uniswap.Sdk.Core.Entities.Fractions;
-using Constants = Uniswap.Sdk.V3.Constants;
+
 
 namespace Uniswap.Sdk.Testing.Core.Entities.Fractions
 {

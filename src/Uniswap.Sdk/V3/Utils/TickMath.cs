@@ -1,4 +1,6 @@
-﻿using System.Numerics;
+﻿using System.Globalization;
+using System.Numerics;
+using Nethereum.Hex.HexConvertors.Extensions;
 
 namespace Uniswap.Sdk.V3.Utils;
 
@@ -17,7 +19,7 @@ public static class TickMath
 
     private static BigInteger MulShift(BigInteger val, string mulBy)
     {
-        return (val * BigInteger.Parse(mulBy)) >> 128;
+        return (val * mulBy.HexToBigInteger(false)) >> 128;
     }
 
     public static BigInteger GetSqrtRatioAtTick(int tick)
@@ -28,8 +30,8 @@ public static class TickMath
         int absTick = Math.Abs(tick);
 
         BigInteger ratio = (absTick & 0x1) != 0
-            ? BigInteger.Parse("0xfffcb933bd6fad37aa2d162d1a594001", System.Globalization.NumberStyles.HexNumber)
-            : BigInteger.Parse("0x100000000000000000000000000000000", System.Globalization.NumberStyles.HexNumber);
+            ? "0xfffcb933bd6fad37aa2d162d1a594001".HexToBigInteger(false)
+            : "0x100000000000000000000000000000000".HexToBigInteger(false);
 
         if ((absTick & 0x2) != 0) ratio = MulShift(ratio, "0xfff97272373d413259a46990580e213a");
         if ((absTick & 0x4) != 0) ratio = MulShift(ratio, "0xfff2e50f5f656932ef12357cf3c7fdcc");
