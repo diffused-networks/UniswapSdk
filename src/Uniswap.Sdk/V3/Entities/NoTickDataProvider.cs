@@ -12,11 +12,11 @@ public class NoTickDataProvider : ITickDataProvider
 
     public Task<Tick> GetTick(int tick)
     {
-        throw new NotImplementedException(ERROR_MESSAGE);
+        throw new InvalidOperationException(ERROR_MESSAGE);
     }
 
     public Task<(int nextTick, bool initialized)> NextInitializedTickWithinOneWord(int tick, bool lte, int tickSpacing)
     {
-        throw new NotImplementedException(ERROR_MESSAGE);
+        throw new InvalidOperationException(ERROR_MESSAGE);
     }
 }

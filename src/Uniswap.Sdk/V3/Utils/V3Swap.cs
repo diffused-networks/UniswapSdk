@@ -61,19 +61,23 @@ public static class V3Swap
             Tick = tickCurrent,
             Liquidity = liquidity
         };
-        var cnt = 0;
-        while (state.AmountSpecifiedRemaining != ZERO && state.SqrtPriceX96 != sqrtPriceLimitX96 && cnt <100)
-        {
-         
 
-            var step = new StepComputations();
-            step.SqrtPriceStartX96 = state.SqrtPriceX96;
+        var cnt = 0;
+        while (state.AmountSpecifiedRemaining != ZERO && state.SqrtPriceX96 != sqrtPriceLimitX96)
+        {
+
+            var step = new StepComputations
+            {
+                SqrtPriceStartX96 = state.SqrtPriceX96
+            };
+
 
             (step.TickNext, step.Initialized) = await tickDataProvider.NextInitializedTickWithinOneWord(
                 state.Tick,
                 zeroForOne,
                 tickSpacing
             );
+
 
             if (step.TickNext < TickMath.MIN_TICK)
             {
@@ -93,18 +97,12 @@ public static class V3Swap
                     : step.SqrtPriceNextX96 > sqrtPriceLimitX96)
                     ? sqrtPriceLimitX96.Value
                     : step.SqrtPriceNextX96,
+             
                 state.Liquidity,
                 state.AmountSpecifiedRemaining,
                 fee
             );
-
-
-            Console.WriteLine("{0} {1} {2} {3} {4} {5} {6}", state.Liquidity, state.AmountSpecifiedRemaining, state.SqrtPriceX96, (zeroForOne
-                ? step.SqrtPriceNextX96 < sqrtPriceLimitX96
-                : step.SqrtPriceNextX96 > sqrtPriceLimitX96)
-                ? sqrtPriceLimitX96.Value
-                : step.SqrtPriceNextX96, step.AmountIn, step.AmountOut, step.FeeAmount);
-
+            
             if (exactInput)
             {
                 state.AmountSpecifiedRemaining -= (step.AmountIn + step.FeeAmount);
@@ -114,7 +112,8 @@ public static class V3Swap
             {
                 state.AmountSpecifiedRemaining += step.AmountOut;
                 state.AmountCalculated += (step.AmountIn + step.FeeAmount);
-            }
+
+           }
 
             if (state.SqrtPriceX96 == step.SqrtPriceNextX96)
             {
@@ -134,6 +133,13 @@ public static class V3Swap
             }
 
             cnt++;
+            if (cnt > 1000)
+            {
+                throw new Exception("Infinite loop");
+            }
+
+
+
         }
 
         return (state.AmountCalculated, state.SqrtPriceX96, state.Liquidity, state.Tick);

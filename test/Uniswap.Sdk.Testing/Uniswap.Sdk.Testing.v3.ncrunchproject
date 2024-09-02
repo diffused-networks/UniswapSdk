@@ -4,18 +4,99 @@
       <NamedTestSelector>
         <TestName>Uniswap.Sdk.Testing.V3.Entities.PoolTests.BigNums_CorrectlyHandlesTwoBigIntegers</TestName>
       </NamedTestSelector>
+      <FixtureTestSelector>
+        <FixtureName>Uniswap.Sdk.Testing.V3.Entities.PositionTests</FixtureName>
+      </FixtureTestSelector>
+      <FixtureTestSelector>
+        <FixtureName>Uniswap.Sdk.Testing.V3.Entities.RouteTests</FixtureName>
+      </FixtureTestSelector>
+      <FixtureTestSelector>
+        <FixtureName>Uniswap.Sdk.Testing.V3.Entities.RouteTests+MidPriceTests</FixtureName>
+      </FixtureTestSelector>
+      <FixtureTestSelector>
+        <FixtureName>Uniswap.Sdk.Testing.V3.Entities.TickDataProviderTests+NoTickDataProviderTests</FixtureName>
+      </FixtureTestSelector>
+      <FixtureTestSelector>
+        <FixtureName>Uniswap.Sdk.Testing.V3.Entities.TickListDataProviderTests</FixtureName>
+      </FixtureTestSelector>
+      <FixtureTestSelector>
+        <FixtureName>Uniswap.Sdk.Testing.V3.Entities.TickTests</FixtureName>
+      </FixtureTestSelector>
+      <NamedTestSelector>
+        <TestName>Uniswap.Sdk.Testing.V3.Entities.TradeTests.FromRoute_CanBeConstructedWithEtherAsOutputForExactInput</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>Uniswap.Sdk.Testing.V3.Entities.TradeTests.FromRoute_CanBeConstructedWithEtherAsInputForExactOutput</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>Uniswap.Sdk.Testing.V3.Entities.PoolTests.WorksWithValidArgumentsForEmptyPoolLowFee</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>Uniswap.Sdk.Testing.V3.Entities.TradeTests.FromRoute_CanBeConstructedWithEtherAsInput</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>Uniswap.Sdk.Testing.V3.Entities.TradeTests.FromRoutes_CanBeConstructedWithEtherAsInputWithMultipleRoutes</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>Uniswap.Sdk.Testing.V3.Entities.TradeTests.FromRoutes_CanBeConstructedWithEtherAsInputForExactOutputWithMultipleRoutes</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>Uniswap.Sdk.Testing.V3.Entities.PoolTests.WorksWithValidArgumentsForEmptyPoolMediumFee</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>Uniswap.Sdk.Testing.V3.Entities.PoolTests.WorksWithValidArgumentsForEmptyPoolLowestFee</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>Uniswap.Sdk.Testing.V3.Entities.PoolTests.WorksWithValidArgumentsForEmptyPoolHighFee</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>Uniswap.Sdk.Testing.V3.Entities.PoolTests.Token1_AlwaysIsTheTokenThatSortsAfter</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>Uniswap.Sdk.Testing.V3.Entities.PoolTests.Token0_AlwaysIsTheTokenThatSortsBefore</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>Uniswap.Sdk.Testing.V3.Entities.PoolTests.PriceOf_ThrowsIfInvalidToken</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>Uniswap.Sdk.Testing.V3.Entities.PoolTests.PriceOf_ReturnsPriceOfTokenInTermsOfOtherToken</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>Uniswap.Sdk.Testing.V3.Entities.PoolTests.Price_MustBeWithinTickPriceBounds</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>Uniswap.Sdk.Testing.V3.Entities.PoolTests.InvolvesToken_ReturnsTrueForInvolvedTokens</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>Uniswap.Sdk.Testing.V3.Entities.PoolTests.GetAddress_MatchesAnExample</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>Uniswap.Sdk.Testing.V3.Entities.PoolTests.Constructor_CannotBeUsedForTokensOnDifferentChains</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>Uniswap.Sdk.Testing.V3.Entities.PoolTests.ChainId_ReturnsTheToken0ChainId</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>Uniswap.Sdk.Testing.V3.Entities.PoolTests.CannotBeGivenTwoOfTheSameToken</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>Uniswap.Sdk.Testing.V3.Entities.PoolTests.BigNums_PriceLimit_CorrectlyComparesTwoBigIntegers</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>Uniswap.Sdk.Testing.V3.Entities.PoolTests.Swaps_GetInputAmount_DAIToUSDC</TestName>
+      </NamedTestSelector>
       <NamedTestSelector>
         <TestName>Uniswap.Sdk.Testing.V3.Entities.PoolTests.Swaps_GetInputAmount_USDCToDAI</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>Uniswap.Sdk.Testing.V3.Entities.PoolTests.Swaps_GetOutputAmount_USDCToDAI</TestName>
       </NamedTestSelector>
       <NamedTestSelector>
         <TestName>Uniswap.Sdk.Testing.V3.Entities.PoolTests.Swaps_GetOutputAmount_DAIToUSDC</TestName>
       </NamedTestSelector>
       <NamedTestSelector>
-        <TestName>Uniswap.Sdk.Testing.V3.Entities.PoolTests.Swaps_GetOutputAmount_USDCToDAI</TestName>
+        <TestName>Uniswap.Sdk.Testing.V3.Entities.TradeTests.FromRoute_CanBeConstructedWithEtherAsOutput</TestName>
       </NamedTestSelector>
-      <FixtureTestSelector>
-        <FixtureName>Uniswap.Sdk.Testing.V3.Entities.PositionTests</FixtureName>
-      </FixtureTestSelector>
     </IgnoredTests>
   </Settings>
 </ProjectConfiguration>

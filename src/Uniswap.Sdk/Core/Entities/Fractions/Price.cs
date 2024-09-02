@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using System.Reflection;
 
 namespace Uniswap.Sdk.Core.Entities.Fractions;
 
@@ -64,7 +65,7 @@ public class Price<TBase, TQuote> : Fraction where TBase : BaseCurrency where TQ
         return AdjustedForDecimals.ToSignificant(significantDigits, format, rounding);
     }
 
-    public new string ToFixed(int decimalPlaces = 4, string format = "", Rounding rounding = Rounding.ROUND_HALF_UP)
+    public new string ToFixed(int decimalPlaces = 4, string? format = null, Rounding rounding = Rounding.ROUND_HALF_UP)
     {
         return AdjustedForDecimals.ToFixed(decimalPlaces, format, rounding);
     }

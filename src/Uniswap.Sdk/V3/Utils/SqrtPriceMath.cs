@@ -1,6 +1,7 @@
 ﻿using System.Numerics;
 using Uniswap.Sdk.V3;
 using Uniswap.Sdk.V3.Utils;
+// ReSharper disable InconsistentNaming
 
 
 public static class SqrtPriceMath
@@ -8,7 +9,7 @@ public static class SqrtPriceMath
     private static BigInteger MultiplyIn256(BigInteger x, BigInteger y)
     {
         BigInteger product = BigInteger.Multiply(x, y);
-        return product &~ Constants.MaxUint256;
+        return product & Constants.MaxUint256;
     }
 
     private static BigInteger AddIn256(BigInteger x, BigInteger y)
@@ -108,7 +109,7 @@ public static class SqrtPriceMath
         if (add)
         {
             BigInteger quotient = amount <= MaxUint160
-                ? BigInteger.Divide(amount <<96, liquidity)
+                ? BigInteger.Divide(amount << 96, liquidity)
                 : BigInteger.Divide(BigInteger.Multiply(amount, Constants.Q96), liquidity);
 
             return sqrtPX96 + quotient;

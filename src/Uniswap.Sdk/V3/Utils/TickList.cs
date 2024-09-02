@@ -1,4 +1,9 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
+using System.Reflection;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using Nethereum.RPC.Eth.Filters;
 using Uniswap.Sdk.V3.Entities;
 
 namespace Uniswap.Sdk.V3.Utils;
@@ -102,11 +107,12 @@ public static class TickList
 
     public static (int, bool) NextInitializedTickWithinOneWord(IReadOnlyList<Tick> ticks, int tick, bool lte, int tickSpacing)
     {
-        int compressed = tick / tickSpacing;
+
+        int compressed = (int)Math.Floor((decimal)tick / (decimal)tickSpacing);
 
         if (lte)
         {
-            int wordPos = compressed >> 8;
+            int wordPos = ((int)compressed) >> 8;
             int minimum = (wordPos << 8) * tickSpacing;
 
             if (IsBelowSmallest(ticks, tick))
@@ -114,6 +120,8 @@ public static class TickList
 
             int index = NextInitializedTick(ticks, tick, lte).Index;
             int nextInitializedTick = Math.Max(minimum, index);
+
+    
             return (nextInitializedTick, nextInitializedTick == index);
         }
         else

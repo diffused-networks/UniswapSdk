@@ -123,7 +123,7 @@ public class Fraction(BigInteger numerator, BigInteger denominator = default):IE
             throw new ArgumentException($"{decimalPlaces} is not a non-negative integer.");
         }
 
-        var quotient = (decimal)Numerator / (decimal)Denominator;
+        var quotient = (decimal)((double)Numerator / (double)Denominator);
         return Round(quotient, decimalPlaces, rounding).ToString(format??$"F{decimalPlaces}", CultureInfo.InvariantCulture);
     }
 

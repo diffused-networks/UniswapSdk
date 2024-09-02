@@ -168,9 +168,9 @@ public class Trade<TInput, TOutput>
         }, tradeType);
     }
 
-    public static async Task<Trade<TInput, TOutput>> FromRoutes(
-        List<(CurrencyAmount<TInput> amount, Route<TInput, TOutput> route)> routes,
-        TradeType tradeType)
+    public static async Task<Trade<TInput, TOutput>> FromRoutes<TAmount>(
+        List<(CurrencyAmount<TAmount> amount, Route<TInput, TOutput> route)> routes,
+        TradeType tradeType) where TAmount : BaseCurrency
     {
         var populatedRoutes = new List<Swap<TInput, TOutput>>();
 
