@@ -11,6 +11,18 @@ public class Trade<TInput, TOutput>
     where TOutput : BaseCurrency
 
 {
+
+    public Route<TInput, TOutput> Route {
+        get
+        {
+            if (Swaps.Count !=1)
+            {
+                throw new System.InvalidOperationException("Multiple Routes");
+            }
+            return Swaps[0].Route;
+        }
+    }
+
     public List<Swap<TInput, TOutput>> Swaps { get; }
     public TradeType TradeType { get; }
 
@@ -18,6 +30,7 @@ public class Trade<TInput, TOutput>
     private CurrencyAmount<TOutput>? _outputAmount;
     private Price<TInput, TOutput>? _executionPrice;
     private Percent? _priceImpact;
+    
 
     public CurrencyAmount<TInput> InputAmount
     {
@@ -241,9 +254,13 @@ public class Trade<TInput, TOutput>
         }, tradeType);
     }
 
-    public static Trade<TInput, TOutput> CreateUncheckedTradeWithMultipleRoutes(List<(Route<TInput, TOutput> route, CurrencyAmount<TInput> inputAmount, CurrencyAmount<TOutput> outputAmount)> routes, TradeType tradeType)
+
+
+
+
+    public static Trade<TInput, TOutput> CreateUncheckedTradeWithMultipleRoutes(List<RouteInput<TInput, TOutput>> routes, TradeType tradeType)
     {
-        var swaps =routes.Select(r => new Swap<TInput, TOutput>(r.route, r.inputAmount, r.outputAmount)).ToList();
+        var swaps =routes.Select(r => new Swap<TInput, TOutput>(r.Route, r.InputAmount, r.OutputAmount)).ToList();
         return new Trade<TInput, TOutput>(swaps,tradeType);
     }
 
@@ -496,5 +513,6 @@ public class Trade<TInput, TOutput>
         public int MaxNumResults { get; set; } = 3;
         public int MaxHops { get; set; } = 3;
     }
+
 
 }

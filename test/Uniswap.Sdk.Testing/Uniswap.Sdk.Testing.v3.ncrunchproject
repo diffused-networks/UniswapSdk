@@ -1,5 +1,8 @@
 ﻿<ProjectConfiguration>
   <Settings>
+    <HiddenComponentWarnings>
+      <Value>LongTestTimesWithoutParallelExecution</Value>
+    </HiddenComponentWarnings>
     <IgnoredTests>
       <NamedTestSelector>
         <TestName>Uniswap.Sdk.Testing.V3.Entities.PoolTests.BigNums_CorrectlyHandlesTwoBigIntegers</TestName>
