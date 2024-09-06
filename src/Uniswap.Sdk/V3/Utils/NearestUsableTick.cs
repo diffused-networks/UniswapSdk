@@ -6,7 +6,7 @@ namespace Uniswap.Sdk.V3.Utils;
 public static class NearestUsableTick
 {
     /// <summary>
-    /// Returns the closest tick that is nearest a given tick and usable for the given tick spacing
+    ///     Returns the closest tick that is nearest a given tick and usable for the given tick spacing
     /// </summary>
     /// <param name="tick">The target tick</param>
     /// <param name="tickSpacing">The spacing of the pool</param>
@@ -16,9 +16,17 @@ public static class NearestUsableTick
         Debug.Assert(tickSpacing > 0, "TICK_SPACING");
         Debug.Assert(tick >= Tick.MIN_TICK && tick <= Tick.MAX_TICK, "TICK_BOUND");
 
-        int rounded = (int)Math.Round((double)tick / tickSpacing) * tickSpacing;
-        if (rounded < Tick.MIN_TICK) return rounded + tickSpacing;
-        else if (rounded > Tick.MAX_TICK) return rounded - tickSpacing;
-        else return rounded;
+        var rounded = (int)Math.Round((double)tick / tickSpacing) * tickSpacing;
+        if (rounded < Tick.MIN_TICK)
+        {
+            return rounded + tickSpacing;
+        }
+
+        if (rounded > Tick.MAX_TICK)
+        {
+            return rounded - tickSpacing;
+        }
+
+        return rounded;
     }
 }

@@ -4,16 +4,28 @@ using ExtendedNumerics;
 
 namespace Uniswap.Sdk.Core.Entities.Fractions;
 
-public class Fraction(BigInteger numerator, BigInteger denominator = default):IEquatable<Fraction>
+public class Fraction(BigInteger numerator, BigInteger denominator = default) : IEquatable<Fraction>
 {
     public BigInteger Numerator { get; protected set; } = numerator;
     public BigInteger Denominator { get; protected set; } = denominator == default ? BigInteger.One : denominator;
 
     public BigInteger Quotient => BigInteger.Divide(Numerator, Denominator);
 
-    public Fraction Remainder() => new(BigInteger.Remainder(Numerator, Denominator), Denominator);
+    public bool Equals(Fraction? other)
+    {
+        var otherParsed = TryParseFraction(other);
+        return Numerator * otherParsed.Denominator == otherParsed.Numerator * Denominator;
+    }
 
-    public Fraction AsFraction() => new(Numerator, Denominator);
+    public Fraction Remainder()
+    {
+        return new Fraction(BigInteger.Remainder(Numerator, Denominator), Denominator);
+    }
+
+    public Fraction AsFraction()
+    {
+        return new Fraction(Numerator, Denominator);
+    }
 
     protected static Fraction TryParseFraction(object? fractionish)
     {
@@ -80,7 +92,6 @@ public class Fraction(BigInteger numerator, BigInteger denominator = default):IE
     }
 
 
-
     public bool GreaterThan(object other)
     {
         var otherParsed = TryParseFraction(other);
@@ -111,10 +122,11 @@ public class Fraction(BigInteger numerator, BigInteger denominator = default):IE
         {
             throw new ArgumentException($"{significantDigits} is not a positive integer.");
         }
+
         // From BigRationalLibrary
- ;
-        var quotient = SetSigFigs((decimal)new BigRational(Numerator, Denominator) , significantDigits, rounding);
-        
+        ;
+        var quotient = SetSigFigs((decimal)new BigRational(Numerator, Denominator), significantDigits, rounding);
+
         return quotient.ToString(format);
     }
 
@@ -126,7 +138,7 @@ public class Fraction(BigInteger numerator, BigInteger denominator = default):IE
         }
 
         var quotient = (decimal)((double)Numerator / (double)Denominator);
-        return Round(quotient, decimalPlaces, rounding).ToString(format??$"F{decimalPlaces}", CultureInfo.InvariantCulture);
+        return Round(quotient, decimalPlaces, rounding).ToString(format ?? $"F{decimalPlaces}", CultureInfo.InvariantCulture);
     }
 
     public static decimal Round(decimal value, int decimals, Rounding mode)
@@ -151,11 +163,5 @@ public class Fraction(BigInteger numerator, BigInteger denominator = default):IE
         var scale = (decimal)Math.Pow(10, Math.Floor(Math.Log10((double)Math.Abs(d))) + 1);
 
         return scale * Round(d / scale, significantDigits, mode);
-    }
-
-    public bool Equals(Fraction? other)
-    {
-             var otherParsed = TryParseFraction(other);
-        return Numerator * otherParsed.Denominator == otherParsed.Numerator * Denominator;
     }
 }

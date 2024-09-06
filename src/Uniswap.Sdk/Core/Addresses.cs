@@ -1,22 +1,10 @@
-﻿
-// ReSharper disable InconsistentNaming
+﻿// ReSharper disable InconsistentNaming
 
 namespace Uniswap.Sdk.Core;
 
 public static class Addresses
 {
     private static readonly List<ChainId> DEFAULT_NETWORKS = [ChainId.MAINNET, ChainId.GOERLI, ChainId.SEPOLIA];
-
-    public static Dictionary<ChainId, string> ConstructSameAddressMap(string address, IEnumerable<ChainId>? additionalNetworks = null)
-    {
-        var networks = DEFAULT_NETWORKS.Union(additionalNetworks ?? []);
-
-
-        return networks.ToDictionary(
-            chainId => chainId,
-            _ => address
-        );
-    }
 
     public static readonly Dictionary<ChainId, string> UNI_ADDRESSES = ConstructSameAddressMap("0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984",
         (List<ChainId>) [ChainId.OPTIMISM, ChainId.ARBITRUM_ONE, ChainId.POLYGON, ChainId.POLYGON_MUMBAI, ChainId.SEPOLIA]);
@@ -281,7 +269,8 @@ public static class Addresses
         { ChainId.ZKSYNC, ZKSYNC_ADDRESSES }
     };
 
-    public static readonly Dictionary<ChainId, string?> V3_CORE_FACTORY_ADDRESSES = Constants.SUPPORTED_CHAINS.ToDictionary(chainId => chainId, chainId => CHAIN_TO_ADDRESSES_MAP[chainId].V3CoreFactoryAddress);
+    public static readonly Dictionary<ChainId, string?> V3_CORE_FACTORY_ADDRESSES =
+        Constants.SUPPORTED_CHAINS.ToDictionary(chainId => chainId, chainId => CHAIN_TO_ADDRESSES_MAP[chainId].V3CoreFactoryAddress);
 
     public static readonly Dictionary<ChainId, string?> V3_MIGRATOR_ADDRESSES = Constants.SUPPORTED_CHAINS.ToDictionary(chainId => chainId, chainId =>
     {
@@ -290,10 +279,12 @@ public static class Addresses
         {
             return v3MigratorAddress;
         }
+
         return null;
     });
 
-    public static readonly Dictionary<ChainId, string?> MULTICALL_ADDRESSES = Constants.SUPPORTED_CHAINS.ToDictionary(chainId => chainId, chainId => CHAIN_TO_ADDRESSES_MAP[chainId].MulticallAddress);
+    public static readonly Dictionary<ChainId, string?> MULTICALL_ADDRESSES =
+        Constants.SUPPORTED_CHAINS.ToDictionary(chainId => chainId, chainId => CHAIN_TO_ADDRESSES_MAP[chainId].MulticallAddress);
 
     public static readonly Dictionary<ChainId, string> GOVERNANCE_ALPHA_V0_ADDRESSES = ConstructSameAddressMap("0x5e4be8Bc9637f0EAA1A755019e06A68ce081D58F");
 
@@ -319,17 +310,20 @@ public static class Addresses
         { ChainId.MAINNET, "0xeca4B0bDBf7c55E9b7925919d03CbF8Dc82537E8" }
     };
 
-    public static readonly Dictionary<ChainId, string?> QUOTER_ADDRESSES = Constants.SUPPORTED_CHAINS.ToDictionary(chainId => chainId, chainId => CHAIN_TO_ADDRESSES_MAP[chainId].QuoterAddress);
+    public static readonly Dictionary<ChainId, string?> QUOTER_ADDRESSES =
+        Constants.SUPPORTED_CHAINS.ToDictionary(chainId => chainId, chainId => CHAIN_TO_ADDRESSES_MAP[chainId].QuoterAddress);
 
-    public static readonly Dictionary<ChainId, string?> NONFUNGIBLE_POSITION_MANAGER_ADDRESSES = Constants.SUPPORTED_CHAINS.ToDictionary(chainId => chainId, chainId =>
-    {
-        var nonfungiblePositionManagerAddress = CHAIN_TO_ADDRESSES_MAP[chainId].NonfungiblePositionManagerAddress;
-        if (nonfungiblePositionManagerAddress != null)
+    public static readonly Dictionary<ChainId, string?> NONFUNGIBLE_POSITION_MANAGER_ADDRESSES = Constants.SUPPORTED_CHAINS.ToDictionary(chainId => chainId,
+        chainId =>
         {
-            return nonfungiblePositionManagerAddress;
-        }
-        return null;
-    });
+            var nonfungiblePositionManagerAddress = CHAIN_TO_ADDRESSES_MAP[chainId].NonfungiblePositionManagerAddress;
+            if (nonfungiblePositionManagerAddress != null)
+            {
+                return nonfungiblePositionManagerAddress;
+            }
+
+            return null;
+        });
 
     public static readonly Dictionary<ChainId, string> ENS_REGISTRAR_ADDRESSES = ConstructSameAddressMap("0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e");
 
@@ -345,6 +339,7 @@ public static class Addresses
         {
             return tickLensAddress;
         }
+
         return null;
     });
 
@@ -355,8 +350,20 @@ public static class Addresses
         {
             return mixedRouteQuoterV1Address;
         }
+
         return null;
     });
+
+    public static Dictionary<ChainId, string> ConstructSameAddressMap(string address, IEnumerable<ChainId>? additionalNetworks = null)
+    {
+        var networks = DEFAULT_NETWORKS.Union(additionalNetworks ?? []);
+
+
+        return networks.ToDictionary(
+            chainId => chainId,
+            _ => address
+        );
+    }
 
     public static string SWAP_ROUTER_02_ADDRESSES(ChainId chainId)
     {
@@ -365,6 +372,7 @@ public static class Addresses
             var addresses = CHAIN_TO_ADDRESSES_MAP[chainId];
             return addresses.SwapRouter02Address ?? "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45";
         }
+
         return "";
     }
 }

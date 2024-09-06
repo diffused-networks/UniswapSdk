@@ -37,7 +37,7 @@ public class Position
         Liquidity = liquidity;
     }
 
-    public Pool Pool { get;  }
+    public Pool Pool { get; }
     public int TickLower { get; }
     public int TickUpper { get; }
     public BigInteger Liquidity { get; }
@@ -125,6 +125,53 @@ public class Position
         }
     }
 
+
+    public (BigInteger amount0, BigInteger amount1) MintAmounts
+    {
+        get
+        {
+            if (_mintAmounts == null)
+            {
+                if (Pool.TickCurrent < TickLower)
+                {
+                    return (SqrtPriceMath.GetAmount0Delta(
+                        TickMath.GetSqrtRatioAtTick(TickLower),
+                        TickMath.GetSqrtRatioAtTick(TickUpper),
+                        Liquidity,
+                        true
+                    ), Constants.ZERO);
+                }
+
+                if (Pool.TickCurrent < TickUpper)
+                {
+                    return (
+                        SqrtPriceMath.GetAmount0Delta(
+                            Pool.SqrtRatioX96,
+                            TickMath.GetSqrtRatioAtTick(TickUpper),
+                            Liquidity,
+                            true
+                        ),
+                        SqrtPriceMath.GetAmount1Delta(
+                            TickMath.GetSqrtRatioAtTick(TickLower),
+                            Pool.SqrtRatioX96,
+                            Liquidity,
+                            true
+                        )
+                    );
+                }
+
+                return (Constants.ZERO, SqrtPriceMath.GetAmount1Delta(
+                    TickMath.GetSqrtRatioAtTick(TickLower),
+                    TickMath.GetSqrtRatioAtTick(TickUpper),
+                    Liquidity,
+                    true
+                ));
+            }
+
+            return _mintAmounts.Value;
+        }
+    }
+
     private (BigInteger sqrtRatioX96Lower, BigInteger sqrtRatioX96Upper) RatiosAfterSlippage(Percent slippageTolerance)
     {
         var priceLower = Pool.Token0Price.AsFraction().Multiply(new Percent(1).Subtract(slippageTolerance));
@@ -182,57 +229,6 @@ public class Position
 
         return (amount0.Quotient, amount1.Quotient);
     }
-
-
-
-    public (BigInteger amount0, BigInteger amount1) MintAmounts
-    {
-        get
-        {
-            if (_mintAmounts == null)
-            {
-                if (Pool.TickCurrent < TickLower)
-                {
-                    return (SqrtPriceMath.GetAmount0Delta(
-                        TickMath.GetSqrtRatioAtTick(TickLower),
-                        TickMath.GetSqrtRatioAtTick(TickUpper),
-                        Liquidity,
-                        true
-                    ), Constants.ZERO);
-                }
-                else if (Pool.TickCurrent < TickUpper)
-                {
-                    return (
-                        SqrtPriceMath.GetAmount0Delta(
-                            Pool.SqrtRatioX96,
-                            TickMath.GetSqrtRatioAtTick(TickUpper),
-                            Liquidity,
-                            true
-                        ),
-                        SqrtPriceMath.GetAmount1Delta(
-                            TickMath.GetSqrtRatioAtTick(TickLower),
-                            Pool.SqrtRatioX96,
-                            Liquidity,
-                            true
-                        )
-                    );
-                }
-                else
-                {
-                    return (Constants.ZERO, SqrtPriceMath.GetAmount1Delta(
-                        TickMath.GetSqrtRatioAtTick(TickLower),
-                        TickMath.GetSqrtRatioAtTick(TickUpper),
-                        Liquidity,
-                        true
-                    ));
-                }
-            }
-            return _mintAmounts.Value;
-        }
-    }
-
-
-
 
 
     public static Position FromAmounts(Pool Pool, int TickLower, int TickUpper, BigInteger Amount0, BigInteger Amount1, bool UseFullPrecision)

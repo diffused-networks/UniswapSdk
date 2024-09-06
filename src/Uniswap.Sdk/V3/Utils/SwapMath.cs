@@ -1,5 +1,4 @@
 ﻿using System.Numerics;
-using static Uniswap.Sdk.V3.Utils.V3Swap;
 
 namespace Uniswap.Sdk.V3.Utils;
 
@@ -7,15 +6,8 @@ public abstract class SwapMath
 {
     private static readonly BigInteger MAX_FEE = BigInteger.Pow(10, 6);
 
-    private SwapMath() { }
-
-
-    public class ReturnValues
+    private SwapMath()
     {
-        public BigInteger SqrtRatioNextX96 { get; set; } = BigInteger.Zero;
-        public BigInteger AmountIn{ get; set; } = BigInteger.Zero;
-        public BigInteger AmountOut { get; set; } = BigInteger.Zero;
-        public BigInteger FeeAmount { get; set; } = BigInteger.Zero;
     }
 
     public static (BigInteger, BigInteger, BigInteger, BigInteger) ComputeSwapStep(
@@ -25,18 +17,16 @@ public abstract class SwapMath
         BigInteger amountRemaining,
         BigInteger feePips)
     {
-
-
         //Console.WriteLine("{0}, {1}, {2}, {3}, {4}",sqrtRatioCurrentX96, sqrtRatioTargetX96, liquidity, amountRemaining, feePips);
 
         var returnValues = new ReturnValues();
 
-        bool zeroForOne = sqrtRatioCurrentX96 >= sqrtRatioTargetX96;
-        bool exactIn = amountRemaining >= Constants.ZERO;
+        var zeroForOne = sqrtRatioCurrentX96 >= sqrtRatioTargetX96;
+        var exactIn = amountRemaining >= Constants.ZERO;
 
         if (exactIn)
         {
-            BigInteger amountRemainingLessFee = BigInteger.Divide(
+            var amountRemainingLessFee = BigInteger.Divide(
                 BigInteger.Multiply(amountRemaining, BigInteger.Subtract(MAX_FEE, feePips)),
                 MAX_FEE
             );
@@ -60,9 +50,6 @@ public abstract class SwapMath
 
                 //Console.WriteLine("{0}, {1}", zeroForOne, returnValues.SqrtRatioNextX96);
             }
-
-
-
         }
         else
         {
@@ -70,9 +57,8 @@ public abstract class SwapMath
                 ? SqrtPriceMath.GetAmount1Delta(sqrtRatioTargetX96, sqrtRatioCurrentX96, liquidity, false)
                 : SqrtPriceMath.GetAmount0Delta(sqrtRatioCurrentX96, sqrtRatioTargetX96, liquidity, false);
 
-          
 
-            if ((BigInteger.Multiply(amountRemaining,Constants.NEGATIVE_ONE) >= returnValues.AmountOut))
+            if (BigInteger.Multiply(amountRemaining, Constants.NEGATIVE_ONE) >= returnValues.AmountOut)
             {
                 returnValues.SqrtRatioNextX96 = sqrtRatioTargetX96;
             }
@@ -81,13 +67,13 @@ public abstract class SwapMath
                 returnValues.SqrtRatioNextX96 = SqrtPriceMath.GetNextSqrtPriceFromOutput(
                     sqrtRatioCurrentX96,
                     liquidity,
-                    BigInteger.Multiply(amountRemaining , Constants.NEGATIVE_ONE),
+                    BigInteger.Multiply(amountRemaining, Constants.NEGATIVE_ONE),
                     zeroForOne
                 );
             }
         }
 
-        bool max = sqrtRatioTargetX96 == returnValues.SqrtRatioNextX96;
+        var max = sqrtRatioTargetX96 == returnValues.SqrtRatioNextX96;
 
         if (zeroForOne)
         {
@@ -100,7 +86,6 @@ public abstract class SwapMath
 
 
             //Console.WriteLine("{0}, {1}, {2}", max, exactIn, returnValues.AmountOut);
-
         }
         else
         {
@@ -132,5 +117,14 @@ public abstract class SwapMath
 
 
         return (returnValues.SqrtRatioNextX96, returnValues.AmountIn, returnValues.AmountOut, returnValues.FeeAmount);
+    }
+
+
+    public class ReturnValues
+    {
+        public BigInteger SqrtRatioNextX96 { get; set; } = BigInteger.Zero;
+        public BigInteger AmountIn { get; set; } = BigInteger.Zero;
+        public BigInteger AmountOut { get; set; } = BigInteger.Zero;
+        public BigInteger FeeAmount { get; set; } = BigInteger.Zero;
     }
 }

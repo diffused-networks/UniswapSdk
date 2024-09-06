@@ -5,27 +5,12 @@ using Uniswap.Sdk.Core.Utils;
 namespace Uniswap.Sdk.Core.Entities;
 
 /// <summary>
-/// Represents an ERC20 token with a unique address and some metadata.
+///     Represents an ERC20 token with a unique address and some metadata.
 /// </summary>
 public class Token : BaseCurrency, IEquatable<Token>
 {
-    public override bool IsNative { get; } = false;
-    public override bool IsToken { get; } = true;
-
     /// <summary>
-    /// The contract address on the chain on which this token lives
-    /// </summary>
-    public string Address { get; }
-
-    /// <summary>
-    /// Relevant for fee-on-transfer (FOT) token taxes,
-    /// Not every ERC20 token is FOT token, so this field is optional
-    /// </summary>
-    public BigInteger? BuyFeeBps { get; }
-    public BigInteger? SellFeeBps { get; }
-
-    /// <summary>
-    /// Initializes a new instance of the Token class.
+    ///     Initializes a new instance of the Token class.
     /// </summary>
     /// <param name="chainId">The chain ID on which this token lives</param>
     /// <param name="address">The contract address on the chain on which this token lives</param>
@@ -69,8 +54,24 @@ public class Token : BaseCurrency, IEquatable<Token>
         SellFeeBps = sellFeeBps;
     }
 
+    public override bool IsNative { get; } = false;
+    public override bool IsToken { get; } = true;
+
     /// <summary>
-    /// Returns true if the two tokens are equivalent, i.e. have the same chainId and address.
+    ///     The contract address on the chain on which this token lives
+    /// </summary>
+    public string Address { get; }
+
+    /// <summary>
+    ///     Relevant for fee-on-transfer (FOT) token taxes,
+    ///     Not every ERC20 token is FOT token, so this field is optional
+    /// </summary>
+    public BigInteger? BuyFeeBps { get; }
+
+    public BigInteger? SellFeeBps { get; }
+
+    /// <summary>
+    ///     Returns true if the two tokens are equivalent, i.e. have the same chainId and address.
     /// </summary>
     /// <param name="other">Other token to compare</param>
     /// <returns>True if the tokens are equivalent, false otherwise</returns>
@@ -85,7 +86,7 @@ public class Token : BaseCurrency, IEquatable<Token>
     }
 
     /// <summary>
-    /// Returns true if the address of this token sorts before the address of the other token
+    ///     Returns true if the address of this token sorts before the address of the other token
     /// </summary>
     /// <param name="other">Other token to compare</param>
     /// <returns>True if this token sorts before the other token, false otherwise</returns>
@@ -106,11 +107,11 @@ public class Token : BaseCurrency, IEquatable<Token>
     }
 
 
-
     /// <summary>
-    /// Return this token, which does not need to be wrapped
+    ///     Return this token, which does not need to be wrapped
     /// </summary>
-    public override Token Wrapped() => this;
-
-
+    public override Token Wrapped()
+    {
+        return this;
+    }
 }

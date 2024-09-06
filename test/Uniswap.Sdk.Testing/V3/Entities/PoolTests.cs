@@ -18,7 +18,10 @@ public class PoolTests(ITestOutputHelper output) :
     [Fact]
     public void Constructor_CannotBeUsedForTokensOnDifferentChains()
     {
-        Assert.Throws<InvalidOperationException>(() => { new Pool(USDC, Weth9.Tokens[3], FeeAmount.MEDIUM, EncodeSqrtRatioX96.Encode(1, 1), 0, 0, new List<object>()); });
+        Assert.Throws<InvalidOperationException>(() =>
+        {
+            new Pool(USDC, Weth9.Tokens[3], FeeAmount.MEDIUM, EncodeSqrtRatioX96.Encode(1, 1), 0, 0, new List<object>());
+        });
     }
 
     //[Fact]
@@ -48,7 +51,8 @@ public class PoolTests(ITestOutputHelper output) :
     [Fact]
     public void Price_MustBeWithinTickPriceBounds()
     {
-        Assert.Throws<ArgumentException>(() => { new Pool(USDC, Weth9.Tokens[1], FeeAmount.MEDIUM, EncodeSqrtRatioX96.Encode(1, 1), 0, 1, new List<object>()); });
+        Assert.Throws<ArgumentException>(
+            () => { new Pool(USDC, Weth9.Tokens[1], FeeAmount.MEDIUM, EncodeSqrtRatioX96.Encode(1, 1), 0, 1, new List<object>()); });
         Assert.Throws<ArgumentException>(() =>
         {
             new Pool(USDC, Weth9.Tokens[1], FeeAmount.MEDIUM, EncodeSqrtRatioX96.Encode(1, 1) + BigInteger.One, 0, -1, new List<object>());

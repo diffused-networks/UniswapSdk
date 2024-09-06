@@ -1,20 +1,14 @@
-﻿using Uniswap.Sdk.Core.Entities.Fractions;
-using Uniswap.Sdk.V3.Entities;
-using Uniswap.Sdk.V3.Utils;
+﻿using Uniswap.Sdk.V3.Entities;
 
 namespace Uniswap.Sdk.V3;
 
 public class NonfungiblePositionManager
 {
-    public class MethodParameters
+    // public static readonly Interface INTERFACE = new Interface(INonfungiblePositionManager.abi);
+
+    private NonfungiblePositionManager()
     {
-        public string Calldata { get; set; }
-        public string Value { get; set; }
     }
-
-   // public static readonly Interface INTERFACE = new Interface(INonfungiblePositionManager.abi);
-
-    private NonfungiblePositionManager() { }
 
     private static string EncodeCreate(Pool pool)
     {
@@ -26,6 +20,12 @@ public class NonfungiblePositionManager
         //    toHex(pool.SqrtRatioX96)
         //});
         throw new NotImplementedException();
+    }
+
+    public class MethodParameters
+    {
+        public string Calldata { get; set; }
+        public string Value { get; set; }
     }
 
     //public static MethodParameters CreateCallParameters(Pool pool)

@@ -7,10 +7,8 @@ namespace Uniswap.Sdk.V3.Entities;
 public class Trade<TInput, TOutput>
     where TInput : BaseCurrency
     where TOutput : BaseCurrency
-
 {
     private Price<TInput, TOutput>? _executionPrice;
-
     private CurrencyAmount<TInput>? _inputAmount;
     private CurrencyAmount<TOutput>? _outputAmount;
     private Percent? _priceImpact;
@@ -510,8 +508,6 @@ public class Trade<TInput, TOutput>
     public static int TradeComparator(
         Trade<TInput, TOutput> a,
         Trade<TInput, TOutput> b)
-
-
     {
         // must have same input and output token for comparison
         if (!a.InputAmount.Currency.Equals(b.InputAmount.Currency))

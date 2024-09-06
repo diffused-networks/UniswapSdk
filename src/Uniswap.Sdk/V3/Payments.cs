@@ -9,9 +9,11 @@ namespace Uniswap.Sdk.V3;
 
 public abstract class Payments
 {
-    public static ABIEncode INTERFACE = new ABIEncode();
+    public static ABIEncode INTERFACE = new();
 
-    private Payments() { }
+    private Payments()
+    {
+    }
 
     private static string EncodeFeeBips(Percent fee)
     {
@@ -33,12 +35,10 @@ public abstract class Payments
             //    feeBips,
             //    feeRecipient);
         }
-        else
-        {
-            //return INTERFACE.GetABIEncodedTransactionData("unwrapWETH9",
-            //    amountMinimum.ToHex(),
-            //    recipient);
-        }
+
+        //return INTERFACE.GetABIEncodedTransactionData("unwrapWETH9",
+        //    amountMinimum.ToHex(),
+        //    recipient);
         throw new NotImplementedException();
     }
 
@@ -58,14 +58,11 @@ public abstract class Payments
             //    feeBips,
             //    feeRecipient);
         }
-        else
-        {
-            //return INTERFACE.GetABIEncodedTransactionData("sweepToken",
-            //    token.Address,
-            //    amountMinimum.ToHex(false),
-            //    recipient);
-        }
 
+        //return INTERFACE.GetABIEncodedTransactionData("sweepToken",
+        //    token.Address,
+        //    amountMinimum.ToHex(false),
+        //    recipient);
         throw new NotImplementedException();
     }
 
@@ -74,16 +71,16 @@ public abstract class Payments
         //return INTERFACE.GetABIEncodedTransactionData("refundETH");
         throw new NotImplementedException();
     }
+
     public interface IFeeOptions
     {
         Percent Fee { get; set; }
         string Recipient { get; set; }
     }
 
-    public class FeeOptions: IFeeOptions
+    public class FeeOptions : IFeeOptions
     {
         public Percent Fee { get; set; }
         public string Recipient { get; set; }
     }
- 
 }

@@ -1,20 +1,18 @@
-﻿using System.Numerics;
-
-namespace Uniswap.Sdk.V3.Entities;
+﻿namespace Uniswap.Sdk.V3.Entities;
 
 /// <summary>
-/// Provides information about ticks
+///     Provides information about ticks
 /// </summary>
 public interface ITickDataProvider
 {
     /// <summary>
-    /// Return information corresponding to a specific tick
+    ///     Return information corresponding to a specific tick
     /// </summary>
     /// <param name="tick">The tick to load</param>
     Task<Tick> GetTick(int tick);
 
     /// <summary>
-    /// Return the next tick that is initialized within a single word
+    ///     Return the next tick that is initialized within a single word
     /// </summary>
     /// <param name="tick">The current tick</param>
     /// <param name="lte">Whether the next tick should be lte the current tick</param>

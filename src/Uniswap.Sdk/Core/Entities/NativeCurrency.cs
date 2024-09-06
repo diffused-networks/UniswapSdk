@@ -1,7 +1,7 @@
 ﻿namespace Uniswap.Sdk.Core.Entities;
 
 /// <summary>
-/// Represents the native currency of the chain on which it resides, e.g.
+///     Represents the native currency of the chain on which it resides, e.g.
 /// </summary>
 public abstract class NativeCurrency(int chainId, int decimals, string? symbol = null, string? name = null)
     : BaseCurrency(chainId, decimals, symbol, name)

@@ -2,20 +2,17 @@
 using Nethereum.ABI;
 using Nethereum.Contracts;
 using Nethereum.Hex.HexConvertors.Extensions;
-using Nethereum.JsonRpc.Client;
-using Nethereum.RPC;
 using Nethereum.Util;
 using Uniswap.Sdk.Core.Entities;
 using Uniswap.Sdk.Core.Entities.Fractions;
 using Uniswap.Sdk.V3.Entities;
-using Uniswap.Sdk.V3.Utils;
 
 namespace Uniswap.Sdk.V3;
 
 public abstract class Staker
 {
-    public static Contract Interface { get; } 
     private const string INCENTIVE_KEY_ABI = "tuple(address rewardToken, address pool, uint256 startTime, uint256 endTime, address refundee)";
+    public static Contract Interface { get; }
 
     private static string[] EncodeClaim(IncentiveKey incentiveKey, IClaimOptions options)
     {
@@ -83,10 +80,8 @@ public abstract class Staker
             var keys = incentiveKeys.Select(EncodeIncentiveKey).ToArray();
             return new ABIEncode().GetABIEncoded(new ABIValue($"{INCENTIVE_KEY_ABI}[]", keys)).ToHex();
         }
-        else
-        {
-            return new ABIEncode().GetABIEncoded(new ABIValue(INCENTIVE_KEY_ABI, EncodeIncentiveKey(incentiveKeys[0]))).ToHex();
-        }
+
+        return new ABIEncode().GetABIEncoded(new ABIValue(INCENTIVE_KEY_ABI, EncodeIncentiveKey(incentiveKeys[0]))).ToHex();
     }
 
     private static object EncodeIncentiveKey(IncentiveKey incentiveKey)
@@ -110,6 +105,7 @@ public abstract class Staker
         public string Owner { get; set; }
         public string Data { get; set; }
     }
+
     public class IncentiveKey
     {
         public Token RewardToken { get; set; }

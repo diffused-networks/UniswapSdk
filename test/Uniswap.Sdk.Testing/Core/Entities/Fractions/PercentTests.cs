@@ -67,6 +67,6 @@ public class PercentTests
     [Fact]
     public void ToFixed_ReturnsValueScaledBy100()
     {
-        Assert.Equal("1.54", new Percent(154, 10_000).ToFixed(2));
+        Assert.Equal("1.54", new Percent(154, 10_000).ToFixed());
     }
 }

@@ -11,11 +11,9 @@ public static class LiquidityMath
     {
         if (y < ZERO)
         {
-            return x - (y * NEGATIVE_ONE);
+            return x - y * NEGATIVE_ONE;
         }
-        else
-        {
-            return x + y;
-        }
+
+        return x + y;
     }
 }

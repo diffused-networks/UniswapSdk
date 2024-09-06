@@ -1,15 +1,28 @@
-﻿using System.Globalization;
-using System.Numerics;
+﻿using System.Numerics;
 
 namespace Uniswap.Sdk.Core.Entities.Fractions;
 
-
-
-
 public class CurrencyAmount<T> : Fraction, IEquatable<CurrencyAmount<T>> where T : BaseCurrency
 {
+    protected CurrencyAmount(T currency, BigInteger numerator, BigInteger? denominator = null)
+        : base(numerator, denominator ?? BigInteger.One)
+    {
+        if (Quotient > BigInteger.Parse("115792089237316195423570985008687907853269984665640564039457584007913129639935"))
+        {
+            throw new ArgumentException("AMOUNT");
+        }
+
+        Currency = (T)currency;
+        DecimalScale = BigInteger.Pow(10, currency.Decimals);
+    }
+
     public T Currency { get; }
     public BigInteger DecimalScale { get; }
+
+    public bool Equals(CurrencyAmount<T>? other)
+    {
+        return base.Equals(other);
+    }
 
     public static CurrencyAmount<T2> FromRawAmount<T2>(T2 currency, BigInteger rawAmount) where T2 : BaseCurrency
     {
@@ -21,21 +34,12 @@ public class CurrencyAmount<T> : Fraction, IEquatable<CurrencyAmount<T>> where T
         return new CurrencyAmount<T2>(currency, numerator, denominator);
     }
 
-
-    protected CurrencyAmount(T currency, BigInteger numerator, BigInteger? denominator = null)
-        : base(numerator, denominator ?? BigInteger.One)
-    {
-        if (Quotient > BigInteger.Parse("115792089237316195423570985008687907853269984665640564039457584007913129639935"))
-            throw new ArgumentException("AMOUNT");
-
-        Currency = (T)currency;
-        DecimalScale = BigInteger.Pow(10, currency.Decimals);
-    }
-
     public CurrencyAmount<T> Add(CurrencyAmount<T> other)
     {
         if (!Currency.Equals(other.Currency))
+        {
             throw new ArgumentException("CURRENCY");
+        }
 
         var added = base.Add(other);
         return FromFractionalAmount(Currency, added.Numerator, added.Denominator);
@@ -44,7 +48,9 @@ public class CurrencyAmount<T> : Fraction, IEquatable<CurrencyAmount<T>> where T
     public CurrencyAmount<T> Subtract(CurrencyAmount<T> other)
     {
         if (!Currency.Equals(other.Currency))
+        {
             throw new ArgumentException("CURRENCY");
+        }
 
         var subtracted = base.Subtract(other);
         return FromFractionalAmount(Currency, subtracted.Numerator, subtracted.Denominator);
@@ -70,10 +76,14 @@ public class CurrencyAmount<T> : Fraction, IEquatable<CurrencyAmount<T>> where T
     public new string ToFixed(int decimalPlaces = -1, string? format = null, Rounding rounding = Rounding.ROUND_DOWN)
     {
         if (decimalPlaces == -1)
+        {
             decimalPlaces = Currency.Decimals;
+        }
 
         if (decimalPlaces > Currency.Decimals)
+        {
             throw new ArgumentException("DECIMALS");
+        }
 
         return base.Divide(new Fraction(DecimalScale)).ToFixed(decimalPlaces, format, rounding);
     }
@@ -83,36 +93,22 @@ public class CurrencyAmount<T> : Fraction, IEquatable<CurrencyAmount<T>> where T
         return ((decimal)Quotient / (decimal)DecimalScale).ToString(format);
     }
 
-    public CurrencyAmount<BaseCurrency>? AsBaseCurrency() => new(this.Currency, Numerator, Denominator)
+    public CurrencyAmount<BaseCurrency>? AsBaseCurrency()
     {
-
-    };
+        return new CurrencyAmount<BaseCurrency>(Currency, Numerator, Denominator);
+    }
 
 
     public CurrencyAmount<Token>? Wrapped()
     {
+        if (Currency is Token)
+        {
+            var x = this as CurrencyAmount<Token>;
 
-            if (Currency is Token)
-            {
-               var x = this as CurrencyAmount<Token>;
-
-                return x ?? FromFractionalAmount(Currency.Wrapped(), Numerator, Denominator);
-            }
+            return x ?? FromFractionalAmount(Currency.Wrapped(), Numerator, Denominator);
+        }
 
 
-            return FromFractionalAmount(Currency.Wrapped(), Numerator, Denominator);
-
- 
+        return FromFractionalAmount(Currency.Wrapped(), Numerator, Denominator);
     }
-
-    public bool Equals(CurrencyAmount<T>? other)
-    {
-        return base.Equals(other);
-    }
-
-
-    
-   
-
-
 }

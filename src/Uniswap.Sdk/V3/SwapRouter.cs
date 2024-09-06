@@ -12,9 +12,11 @@ namespace Uniswap.Sdk.V3;
 
 public abstract class SwapRouter
 {
-    public static ABIEncode INTERFACE = new ABIEncode();
+    public static ABIEncode INTERFACE = new();
 
-    private SwapRouter() { }
+    private SwapRouter()
+    {
+    }
 
     public static NonfungiblePositionManager.MethodParameters SwapCallParameters(
         IEnumerable<Trade<BaseCurrency, BaseCurrency>> trades,
@@ -34,6 +36,7 @@ public abstract class SwapRouter
         {
             throw new InvalidOperationException("TOKEN_IN_DIFF");
         }
+
         if (!trades.All(trade => trade.OutputAmount.Currency.Wrapped().Equals(tokenOut)))
         {
             throw new InvalidOperationException("TOKEN_OUT_DIFF");
@@ -61,6 +64,7 @@ public abstract class SwapRouter
             {
                 throw new InvalidOperationException("NON_TOKEN_PERMIT");
             }
+
             calldatas.Add(SelfPermit.EncodePermit((Token)sampleTrade.InputAmount.Currency, options.InputTokenPermit));
         }
 
@@ -108,7 +112,7 @@ public abstract class SwapRouter
                             sqrtPriceLimitX96 = (options.SqrtPriceLimitX96 ?? BigInteger.Zero).ToHex(false)
                         };
 
-                       // calldatas.Add(INTERFACE.GetFunctionEncoder("exactOutputSingle").EncodeParameters(new[] { exactOutputSingleParams }));
+                        // calldatas.Add(INTERFACE.GetFunctionEncoder("exactOutputSingle").EncodeParameters(new[] { exactOutputSingleParams }));
                     }
                 }
                 else
@@ -131,7 +135,7 @@ public abstract class SwapRouter
                             amountOutMinimum = amountOut
                         };
 
-                      //  calldatas.Add(INTERFACE.GetFunctionEncoder("exactInput").EncodeParameters(new[] { exactInputParams }));
+                        //  calldatas.Add(INTERFACE.GetFunctionEncoder("exactInput").EncodeParameters(new[] { exactInputParams }));
                     }
                     else
                     {
@@ -144,7 +148,7 @@ public abstract class SwapRouter
                             amountInMaximum = amountIn
                         };
 
-                       // calldatas.Add(INTERFACE.GetFunctionEncoder("exactOutput").EncodeParameters(new[] { exactOutputParams }));
+                        // calldatas.Add(INTERFACE.GetFunctionEncoder("exactOutput").EncodeParameters(new[] { exactOutputParams }));
                     }
                 }
             }
@@ -158,10 +162,7 @@ public abstract class SwapRouter
                 {
                     calldatas.Add(Payments.EncodeUnwrapWETH9(totalAmountOut.Quotient, recipient, options.Fee));
                 }
-                else
-                {
-                   // calldatas.Add(Payments.EncodeSweepToken(sampleTrade.OutputAmount.Currency.Wrapped, totalAmountOut.Quotient, recipient, options.Fee));
-                }
+                // calldatas.Add(Payments.EncodeSweepToken(sampleTrade.OutputAmount.Currency.Wrapped, totalAmountOut.Quotient, recipient, options.Fee));
             }
             else
             {

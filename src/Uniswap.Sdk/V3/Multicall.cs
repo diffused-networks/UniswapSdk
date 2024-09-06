@@ -9,15 +9,17 @@ public abstract class Multicall
 
     static Multicall()
     {
-        string jsonContent = System.IO.File.ReadAllText("IMulticall.json");
-        JObject jsonObject = JObject.Parse(jsonContent);
-        JArray abiArray = (JArray)jsonObject["abi"];
-        string abiString = abiArray.ToString();
+        var jsonContent = File.ReadAllText("IMulticall.json");
+        var jsonObject = JObject.Parse(jsonContent);
+        var abiArray = (JArray)jsonObject["abi"];
+        var abiString = abiArray.ToString();
 
         // INTERFACE = new Contract(null, abiString);
     }
 
-    private Multicall() { }
+    private Multicall()
+    {
+    }
 
     public static string EncodeMulticall(string calldata)
     {

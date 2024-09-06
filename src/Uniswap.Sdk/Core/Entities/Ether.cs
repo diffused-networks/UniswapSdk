@@ -2,18 +2,22 @@
 
 public class Ether : NativeCurrency
 {
-    protected Ether(int chainId) : base(chainId, 18, "ETH", "Ether") { }
+    private static readonly Dictionary<int, Ether> _etherCache = new();
+
+    protected Ether(int chainId) : base(chainId, 18, "ETH", "Ether")
+    {
+    }
 
     public override Token Wrapped()
     {
+        var weth9 = Weth9.Tokens[ChainId];
+        if (weth9 == null)
+        {
+            throw new InvalidOperationException("WRAPPED");
+        }
 
-            var weth9 = Weth9.Tokens[this.ChainId];
-            if (weth9 == null) throw new InvalidOperationException("WRAPPED");
-            return weth9;
-     
+        return weth9;
     }
-
-    private static Dictionary<int, Ether> _etherCache = new Dictionary<int, Ether>();
 
     public static Ether OnChain(int chainId)
     {
@@ -22,11 +26,12 @@ public class Ether : NativeCurrency
             ether = new Ether(chainId);
             _etherCache[chainId] = ether;
         }
+
         return ether;
     }
 
     public override bool Equals(BaseCurrency other)
     {
-        return other.IsNative && other.ChainId == this.ChainId;
+        return other.IsNative && other.ChainId == ChainId;
     }
 }

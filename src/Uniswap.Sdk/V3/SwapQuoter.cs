@@ -5,14 +5,13 @@ using Uniswap.Sdk.Core;
 using Uniswap.Sdk.Core.Entities;
 using Uniswap.Sdk.Core.Entities.Fractions;
 using Uniswap.Sdk.V3.Entities;
-using Uniswap.Sdk.V3.Utils;
 
 namespace Uniswap.Sdk.V3;
 
 public abstract class SwapQuoter
 {
-    public static ABIEncode V1INTERFACE = new ABIEncode(); // Initialize with IQuoter ABI
-    public static ABIEncode V2INTERFACE = new ABIEncode(); // Initialize with IQuoterV2 ABI
+    public static ABIEncode V1INTERFACE = new(); // Initialize with IQuoter ABI
+    public static ABIEncode V2INTERFACE = new(); // Initialize with IQuoterV2 ABI
 
     public static NonfungiblePositionManager.MethodParameters QuoteCallParameters<TInput, TOutput>(
         Route<TInput, TOutput> route,
@@ -21,10 +20,10 @@ public abstract class SwapQuoter
         QuoteOptions options = null) where TInput : BaseCurrency where TOutput : BaseCurrency
     {
         options = options ?? new QuoteOptions();
-        bool singleHop = route.Pools.Count == 1;
-        string quoteAmount = amount.Quotient.ToHex(false);
+        var singleHop = route.Pools.Count == 1;
+        var quoteAmount = amount.Quotient.ToHex(false);
         string calldata;
-        ABIEncode swapInterface = options.UseQuoterV2 ? V2INTERFACE : V1INTERFACE;
+        var swapInterface = options.UseQuoterV2 ? V2INTERFACE : V1INTERFACE;
 
         if (singleHop)
         {
@@ -34,7 +33,6 @@ public abstract class SwapQuoter
                 tokenOut = ((dynamic)route.TokenPath[1]).Address,
                 fee = (int)route.Pools[0].Fee,
                 sqrtPriceLimitX96 = (options.SqrtPriceLimitX96 ?? BigInteger.Zero).ToHex(false)
-
             };
 
             object quoteParams;
@@ -61,7 +59,7 @@ public abstract class SwapQuoter
                 };
             }
 
-            string tradeTypeFunctionName = tradeType == TradeType.EXACT_INPUT ? "quoteExactInputSingle" : "quoteExactOutputSingle";
+            var tradeTypeFunctionName = tradeType == TradeType.EXACT_INPUT ? "quoteExactInputSingle" : "quoteExactOutputSingle";
             //calldata = swapInterface.GetFunctionEncoded(tradeTypeFunctionName, quoteParams);
         }
         else
@@ -71,8 +69,8 @@ public abstract class SwapQuoter
                 throw new InvalidOperationException("MULTIHOP_PRICE_LIMIT");
             }
 
-            string path = EncodeRouteToPath(route, tradeType == TradeType.EXACT_OUTPUT);
-            string tradeTypeFunctionName = tradeType == TradeType.EXACT_INPUT ? "quoteExactInput" : "quoteExactOutput";
+            var path = EncodeRouteToPath(route, tradeType == TradeType.EXACT_OUTPUT);
+            var tradeTypeFunctionName = tradeType == TradeType.EXACT_INPUT ? "quoteExactInput" : "quoteExactOutput";
             //calldata = swapInterface.GetFunctionEncoded(tradeTypeFunctionName, path, quoteAmount);
         }
 

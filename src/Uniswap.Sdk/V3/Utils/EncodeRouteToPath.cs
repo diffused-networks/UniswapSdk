@@ -8,20 +8,20 @@ namespace Uniswap.Sdk.V3.Utils;
 public static class EncodeRouteToPath
 {
     /// <summary>
-    /// Converts a route to a hex encoded path
-    /// <summary>
-    /// Converts a route to a hex encoded path
-    /// </summary>
-    /// <param name="route">The v3 path to convert to an encoded path</param>
-    /// <param name="exactOutput">Whether the route should be encoded in reverse, for making exact output swaps</param>
-    /// <returns>The hex encoded path</returns>
-   public static string Encode(Route<BaseCurrency, BaseCurrency> route, bool exactOutput)
+    ///     Converts a route to a hex encoded path
+    ///     <summary>
+    ///         Converts a route to a hex encoded path
+    ///     </summary>
+    ///     <param name="route">The v3 path to convert to an encoded path</param>
+    ///     <param name="exactOutput">Whether the route should be encoded in reverse, for making exact output swaps</param>
+    ///     <returns>The hex encoded path</returns>
+    public static string Encode(Route<BaseCurrency, BaseCurrency> route, bool exactOutput)
     {
         var firstInputToken = (Token)route.Input;
         var types = new List<string>();
         var path = new List<object>();
 
-        for (int i = 0; i < route.Pools.Count; i++)
+        for (var i = 0; i < route.Pools.Count; i++)
         {
             var pool = route.Pools[i];
             var outputToken = pool.Token0.Address == firstInputToken.Address ? pool.Token1 : pool.Token0;

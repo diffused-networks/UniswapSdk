@@ -1,5 +1,4 @@
-﻿using System.Numerics;
-using Uniswap.Sdk.V3.Utils;
+﻿using Uniswap.Sdk.V3.Utils;
 
 namespace Uniswap.Sdk.V3.Entities;
 
@@ -14,6 +13,7 @@ public class TickListDataProvider : ITickDataProvider
         {
             ticksList.Add(t);
         }
+
         TickList.ValidateList(ticksList, tickSpacing);
         this.ticks = ticksList;
     }

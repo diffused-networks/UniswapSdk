@@ -10,8 +10,8 @@ public static class PriceTick
 
     public static Price<Token, Token> TickToPrice(Token baseToken, Token quoteToken, int tick)
     {
-        BigInteger sqrtRatioX96 = TickMath.GetSqrtRatioAtTick(tick);
-        BigInteger ratioX192 = sqrtRatioX96 * sqrtRatioX96;
+        var sqrtRatioX96 = TickMath.GetSqrtRatioAtTick(tick);
+        var ratioX192 = sqrtRatioX96 * sqrtRatioX96;
 
         return baseToken.SortsBefore(quoteToken)
             ? new Price<Token, Token>(baseToken, quoteToken, Q192, ratioX192)
@@ -20,14 +20,14 @@ public static class PriceTick
 
     public static int PriceToClosestTick(Price<Token, Token> price)
     {
-        bool sorted = price.BaseCurrency.SortsBefore(price.QuoteCurrency);
+        var sorted = price.BaseCurrency.SortsBefore(price.QuoteCurrency);
 
-        BigInteger sqrtRatioX96 = sorted
+        var sqrtRatioX96 = sorted
             ? EncodeSqrtRatioX96(price.Numerator, price.Denominator)
             : EncodeSqrtRatioX96(price.Denominator, price.Numerator);
 
-        int tick = TickMath.GetTickAtSqrtRatio(sqrtRatioX96);
-        Price<Token, Token> nextTickPrice = TickToPrice(price.BaseCurrency, price.QuoteCurrency, tick + 1);
+        var tick = TickMath.GetTickAtSqrtRatio(sqrtRatioX96);
+        var nextTickPrice = TickToPrice(price.BaseCurrency, price.QuoteCurrency, tick + 1);
 
         if (sorted)
         {

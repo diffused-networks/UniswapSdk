@@ -1,4 +1,5 @@
 ﻿using Uniswap.Sdk.Core.Entities;
+
 // ReSharper disable InconsistentNaming
 
 namespace Uniswap.Sdk.Testing.Core.Entities;

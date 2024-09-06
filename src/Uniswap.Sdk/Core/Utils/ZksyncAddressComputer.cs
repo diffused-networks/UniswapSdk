@@ -38,13 +38,16 @@ public static class ZksyncAddressComputer
             Buffer.BlockCopy(array, 0, result, offset, array.Length);
             offset += array.Length;
         }
+
         return result;
     }
 
     private static byte[] PadLeft(this byte[] array, int length)
     {
         if (array.Length >= length)
+        {
             return array;
+        }
 
         var result = new byte[length];
         Buffer.BlockCopy(array, 0, result, length - array.Length, array.Length);

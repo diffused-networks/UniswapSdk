@@ -4,7 +4,11 @@ namespace Uniswap.Sdk.V3.Utils;
 
 public abstract class TickLibrary
 {
-    private TickLibrary() { }
+    private static readonly BigInteger Q256 = BigInteger.Pow(2, 256);
+
+    private TickLibrary()
+    {
+    }
 
     public static (BigInteger, BigInteger) GetFeeGrowthInside(
         FeeGrowthOutside feeGrowthOutsideLower,
@@ -47,25 +51,21 @@ public abstract class TickLibrary
         );
     }
 
-    public interface FeeGrowthOutside
-    {
-        BigInteger FeeGrowthOutside0X128 { get; set; }
-        BigInteger FeeGrowthOutside1X128 { get; set; }
-    }
-
     public static BigInteger SubIn256(BigInteger x, BigInteger y)
     {
-        BigInteger difference = x - y;
+        var difference = x - y;
 
         if (difference < Constants.ZERO)
         {
             return Q256 + difference;
         }
-        else
-        {
-            return difference;
-        }
+
+        return difference;
     }
 
-    static BigInteger Q256 = BigInteger.Pow(2, 256);
+    public interface FeeGrowthOutside
+    {
+        BigInteger FeeGrowthOutside0X128 { get; set; }
+        BigInteger FeeGrowthOutside1X128 { get; set; }
+    }
 }

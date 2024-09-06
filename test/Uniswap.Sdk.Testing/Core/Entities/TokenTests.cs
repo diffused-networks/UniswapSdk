@@ -102,7 +102,7 @@ public class TokenTests
     [Fact]
     public void Equals_TrueEvenIfOneTokenIsChecksummedAndOtherIsNot()
     {
-        var tokenA = new Token(1, DAI_MAINNET, 18, "DAI", null, false);
+        var tokenA = new Token(1, DAI_MAINNET, 18, "DAI");
         var tokenB = new Token(1, DAI_MAINNET.ToLowerInvariant(), 18, "DAI", null, true);
         Assert.True(tokenA.Equals(tokenB));
     }

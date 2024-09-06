@@ -12,6 +12,7 @@ public static class RlpEncoder
             result.Insert(0, (byte)(value & 0xff));
             value >>= 8;
         }
+
         return result.ToArray();
     }
 
@@ -32,29 +33,36 @@ public static class RlpEncoder
             }
 
             var length = ArrayifyInteger(payload.Count);
-            var lengthPrefix = new byte[] { (byte)(0xf7 + length.Length) };
+            var lengthPrefix = new[] { (byte)(0xf7 + length.Length) };
             return lengthPrefix.Concat(length).Concat(payload).ToArray();
         }
 
         byte[] data;
         if (obj is string str)
+        {
             data = str.HexToByteArray();
+        }
         else if (obj is byte[] bytes)
+        {
             data = bytes;
+        }
         else
+        {
             throw new ArgumentException("Unsupported object type for RLP encoding");
+        }
 
         if (data.Length == 1 && data[0] <= 0x7f)
         {
             return data;
         }
-        else if (data.Length <= 55)
+
+        if (data.Length <= 55)
         {
-            return new byte[] { (byte)(0x80 + data.Length) }.Concat(data).ToArray();
+            return new[] { (byte)(0x80 + data.Length) }.Concat(data).ToArray();
         }
 
         var dataLength = ArrayifyInteger(data.Length);
-        var dataLengthPrefix = new byte[] { (byte)(0xb7 + dataLength.Length) };
+        var dataLengthPrefix = new[] { (byte)(0xb7 + dataLength.Length) };
         return dataLengthPrefix.Concat(dataLength).Concat(data).ToArray();
     }
 

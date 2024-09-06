@@ -4,7 +4,7 @@ namespace Uniswap.Sdk.V3.Utils;
 
 public static class MostSignificantBitCalculator
 {
-    private static readonly BigInteger Two = new BigInteger(2);
+    private static readonly BigInteger Two = new(2);
     private static readonly BigInteger Zero = BigInteger.Zero;
     private static readonly BigInteger MaxUint256 = BigInteger.Pow(2, 256) - 1;
 
@@ -25,7 +25,7 @@ public static class MostSignificantBitCalculator
             throw new ArgumentException("Input must be less than or equal to MaxUint256.", nameof(x));
         }
 
-        int msb = 0;
+        var msb = 0;
         foreach (var (power, min) in PowersOf2)
         {
             if (x >= min)

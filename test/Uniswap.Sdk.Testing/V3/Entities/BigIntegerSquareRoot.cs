@@ -12,81 +12,83 @@ public static class BigIntegerSquareRoot
 {
     public static BigInteger NewtonPlusSqrt(BigInteger x)
     {
-        if (x < 144838757784765629)    // 1.448e17 = ~1<<57
+        if (x < 144838757784765629) // 1.448e17 = ~1<<57
         {
-            uint vInt = (uint)Math.Sqrt((ulong)x);
-            if ((x >= 4503599761588224) && ((ulong)vInt * vInt > (ulong)x))  // 4.5e15 =  ~1<<52
+            var vInt = (uint)Math.Sqrt((ulong)x);
+            if (x >= 4503599761588224 && (ulong)vInt * vInt > (ulong)x) // 4.5e15 =  ~1<<52
             {
                 vInt--;
             }
+
             return vInt;
         }
 
-        double xAsDub = (double)x;
-        if (xAsDub < 8.5e37)   //  long.max*long.max
+        var xAsDub = (double)x;
+        if (xAsDub < 8.5e37) //  long.max*long.max
         {
-            ulong vInt = (ulong)Math.Sqrt(xAsDub);
-            BigInteger v = (vInt + ((ulong)(x / vInt))) >> 1;
-            return (v * v <= x) ? v : v - 1;
+            var vInt = (ulong)Math.Sqrt(xAsDub);
+            BigInteger v = (vInt + (ulong)(x / vInt)) >> 1;
+            return v * v <= x ? v : v - 1;
         }
 
         if (xAsDub < 4.3322e127)
         {
-            BigInteger v = (BigInteger)Math.Sqrt(xAsDub);
-            v = (v + (x / v)) >> 1;
+            var v = (BigInteger)Math.Sqrt(xAsDub);
+            v = (v + x / v) >> 1;
             if (xAsDub > 2e63)
             {
-                v = (v + (x / v)) >> 1;
+                v = (v + x / v) >> 1;
             }
-            return (v * v <= x) ? v : v - 1;
+
+            return v * v <= x ? v : v - 1;
         }
 
-        int xLen = (int)x.GetBitLength();
-        int wantedPrecision = (xLen + 1) / 2;
-        int xLenMod = xLen + (xLen & 1) + 1;
+        var xLen = (int)x.GetBitLength();
+        var wantedPrecision = (xLen + 1) / 2;
+        var xLenMod = xLen + (xLen & 1) + 1;
 
         //////// Do the first Sqrt on hardware ////////
-        long tempX = (long)(x >> (xLenMod - 63));
-        double tempSqrt1 = Math.Sqrt(tempX);
-        ulong valLong = (ulong)BitConverter.DoubleToInt64Bits(tempSqrt1) & 0x1fffffffffffffL;
+        var tempX = (long)(x >> (xLenMod - 63));
+        var tempSqrt1 = Math.Sqrt(tempX);
+        var valLong = (ulong)BitConverter.DoubleToInt64Bits(tempSqrt1) & 0x1fffffffffffffL;
         if (valLong == 0)
         {
             valLong = 1UL << 53;
         }
 
         ////////  Classic Newton Iterations ////////
-        BigInteger val = ((BigInteger)valLong << 52) + (x >> xLenMod - (3 * 53)) / valLong;
-        int size = 106;
+        var val = ((BigInteger)valLong << 52) + (x >> (xLenMod - 3 * 53)) / valLong;
+        var size = 106;
         for (; size < 256; size <<= 1)
         {
-            val = (val << (size - 1)) + (x >> xLenMod - (3 * size)) / val;
+            val = (val << (size - 1)) + (x >> (xLenMod - 3 * size)) / val;
         }
 
         if (xAsDub > 4e254) // 4e254 = 1<<845.76973610139
         {
-            int numOfNewtonSteps = BitOperations.Log2((uint)(wantedPrecision / size)) + 2;
+            var numOfNewtonSteps = BitOperations.Log2((uint)(wantedPrecision / size)) + 2;
 
             //////  Apply Starting Size  ////////
-            int wantedSize = (wantedPrecision >> numOfNewtonSteps) + 2;
-            int needToShiftBy = size - wantedSize;
+            var wantedSize = (wantedPrecision >> numOfNewtonSteps) + 2;
+            var needToShiftBy = size - wantedSize;
             val >>= needToShiftBy;
             size = wantedSize;
             do
             {
                 ////////  Newton Plus Iterations  ////////
-                int shiftX = xLenMod - (3 * size);
-                BigInteger valSqrd = (val * val) << (size - 1);
-                BigInteger valSU = (x >> shiftX) - valSqrd;
-                val = (val << size) + (valSU / val);
+                var shiftX = xLenMod - 3 * size;
+                var valSqrd = (val * val) << (size - 1);
+                var valSU = (x >> shiftX) - valSqrd;
+                val = (val << size) + valSU / val;
                 size *= 2;
             } while (size < wantedPrecision);
         }
 
         /////// There are a few extra digits here, lets save them ///////
-        int oversidedBy = size - wantedPrecision;
-        BigInteger saveDroppedDigitsBI = val & ((BigInteger.One << oversidedBy) - 1);
-        int downby = (oversidedBy < 64) ? (oversidedBy >> 2) + 1 : (oversidedBy - 32);
-        ulong saveDroppedDigits = (ulong)(saveDroppedDigitsBI >> downby);
+        var oversidedBy = size - wantedPrecision;
+        var saveDroppedDigitsBI = val & ((BigInteger.One << oversidedBy) - 1);
+        var downby = oversidedBy < 64 ? (oversidedBy >> 2) + 1 : oversidedBy - 32;
+        var saveDroppedDigits = (ulong)(saveDroppedDigitsBI >> downby);
 
 
         ////////  Shrink result to wanted Precision  ////////
@@ -94,7 +96,7 @@ public static class BigIntegerSquareRoot
 
 
         ////////  Detect a round-ups  ////////
-        if ((saveDroppedDigits == 0) && (val * val > x))
+        if (saveDroppedDigits == 0 && val * val > x)
         {
             val--;
         }
@@ -122,46 +124,47 @@ public static class BigIntegerSquareRoot
 
     public static BigInteger SunsetQuestSqrtO2(BigInteger x)
     {
-        if (x < 144838757784765629)    // 1.448e17 = ~1<<57
+        if (x < 144838757784765629) // 1.448e17 = ~1<<57
         {
-            uint vInt = (uint)Math.Sqrt((ulong)x);
-            if ((x >= 4503599761588224) && ((ulong)vInt * vInt > (ulong)x))  // 4.5e15 =  ~1<<52
+            var vInt = (uint)Math.Sqrt((ulong)x);
+            if (x >= 4503599761588224 && (ulong)vInt * vInt > (ulong)x) // 4.5e15 =  ~1<<52
             {
                 vInt--;
             }
+
             return vInt;
         }
 
-        double xAsDub = (double)x;
-        if (xAsDub < 8.5e37)   //  long.max*long.max
+        var xAsDub = (double)x;
+        if (xAsDub < 8.5e37) //  long.max*long.max
         {
-            ulong vInt = (ulong)Math.Sqrt(xAsDub);
-            BigInteger v = (vInt + ((ulong)(x / vInt))) >> 1;
-            return (v * v <= x) ? v : v - 1;
+            var vInt = (ulong)Math.Sqrt(xAsDub);
+            BigInteger v = (vInt + (ulong)(x / vInt)) >> 1;
+            return v * v <= x ? v : v - 1;
         }
 
         if (xAsDub < 4.3322e127)
         {
-            BigInteger v = (BigInteger)Math.Sqrt(xAsDub);
-            v = (v + (x / v)) >> 1;
+            var v = (BigInteger)Math.Sqrt(xAsDub);
+            v = (v + x / v) >> 1;
             if (xAsDub > 2e63)
             {
-                v = (v + (x / v)) >> 1;
+                v = (v + x / v) >> 1;
             }
             //if (v * v > x)
             //    Console.WriteLine($"{(v * v) > x}, {v * v}, {x}, {x - (v * v)}, {(double)(x - (v * v)).GetBitLength() / x.GetBitLength()},  {2 * (x - (v * v)).GetBitLength()}/{x.GetBitLength()}  ");
 
-            return (v * v <= x) ? v : v - 1;
+            return v * v <= x ? v : v - 1;
         }
 
-        int xLen = (int)x.GetBitLength();
-        int wantedPrecision = (xLen + 1) / 2;
-        int xLenMod = xLen + (xLen & 1) + 1;
+        var xLen = (int)x.GetBitLength();
+        var wantedPrecision = (xLen + 1) / 2;
+        var xLenMod = xLen + (xLen & 1) + 1;
 
         //////// Do the first Sqrt on hardware ////////
-        long tempX = (long)(x >> (xLenMod - 63));
-        double tempSqrt1 = Math.Sqrt(tempX);
-        ulong valLong = (ulong)BitConverter.DoubleToInt64Bits(tempSqrt1) & 0x1fffffffffffffL;
+        var tempX = (long)(x >> (xLenMod - 63));
+        var tempSqrt1 = Math.Sqrt(tempX);
+        var valLong = (ulong)BitConverter.DoubleToInt64Bits(tempSqrt1) & 0x1fffffffffffffL;
         if (valLong == 0)
         {
             valLong = 1UL << 53;
@@ -170,33 +173,33 @@ public static class BigIntegerSquareRoot
         //if (((BigInteger)valLong * valLong) > (x >> (xLenMod - 106))) valLong--;
 
         ////////  Classic Newton Iterations ////////
-        BigInteger val = ((BigInteger)valLong << (53 - 1)) + (x >> xLenMod - (3 * 53)) / valLong;
-        int size = 106;
+        var val = ((BigInteger)valLong << (53 - 1)) + (x >> (xLenMod - 3 * 53)) / valLong;
+        var size = 106;
         for (; size < 256; size <<= 1)
         {
-            val = (val << (size - 1)) + (x >> xLenMod - (3 * size)) / val;
+            val = (val << (size - 1)) + (x >> (xLenMod - 3 * size)) / val;
         }
 
         //BigInteger tempVal = val >> (size - wantedPrecision); if ((tempVal * tempVal) > x) val--;
 
         if (xAsDub > 4e254) // 4e254 = 1<<845.76973610139
         {
-            int numOfNewtonSteps = BitOperations.Log2((uint)(wantedPrecision / size)) + 1; // technically should be "(wantedPrecision-1)/size" but faster without
+            var numOfNewtonSteps =
+                BitOperations.Log2((uint)(wantedPrecision / size)) + 1; // technically should be "(wantedPrecision-1)/size" but faster without
 
             //////  Apply Starting Size  ////////
-            int wantedSize = (wantedPrecision >> numOfNewtonSteps) + 2;
-            int needToShiftBy = size - wantedSize;
+            var wantedSize = (wantedPrecision >> numOfNewtonSteps) + 2;
+            var needToShiftBy = size - wantedSize;
             val >>= needToShiftBy;
             size = wantedSize;
             do
             {
                 ////////  Newton Plus Iterations  ////////
-                int shiftX = xLenMod - (3 * size);
-                BigInteger valSqrd = (val * val) << (size - 1);
-                BigInteger valSU = (x >> shiftX) - valSqrd;
-                val = (val << size) + (valSU / val);
+                var shiftX = xLenMod - 3 * size;
+                var valSqrd = (val * val) << (size - 1);
+                var valSU = (x >> shiftX) - valSqrd;
+                val = (val << size) + valSU / val;
                 size *= 2;
-
             } while (size < wantedPrecision);
         }
 
@@ -233,58 +236,49 @@ public static class BigIntegerSquareRoot
     }
 
 
-
-
-
-
-
-
-
-
-
-
     public static BigInteger SunsetQuestSqrtO(BigInteger x)
     {
-        if (x < 144838757784765629)    // 1.448e17 = ~1<<57
+        if (x < 144838757784765629) // 1.448e17 = ~1<<57
         {
-            uint vInt = (uint)Math.Sqrt((ulong)x);
-            if ((x >= 4503599761588224) && ((ulong)vInt * vInt > (ulong)x))  // 4.5e15 =  ~1<<52
+            var vInt = (uint)Math.Sqrt((ulong)x);
+            if (x >= 4503599761588224 && (ulong)vInt * vInt > (ulong)x) // 4.5e15 =  ~1<<52
             {
                 vInt--;
             }
+
             return vInt;
         }
 
-        double xAsDub = (double)x;
-        if (xAsDub < 8.5e37)   //  long.max*long.max
+        var xAsDub = (double)x;
+        if (xAsDub < 8.5e37) //  long.max*long.max
         {
-            ulong vInt = (ulong)Math.Sqrt(xAsDub);
-            BigInteger v = (vInt + ((ulong)(x / vInt))) >> 1;
-            return (v * v <= x) ? v : v - 1;
+            var vInt = (ulong)Math.Sqrt(xAsDub);
+            BigInteger v = (vInt + (ulong)(x / vInt)) >> 1;
+            return v * v <= x ? v : v - 1;
         }
 
         if (xAsDub < 4.3322e127)
         {
-            BigInteger v = (BigInteger)Math.Sqrt(xAsDub);
-            v = (v + (x / v)) >> 1;
+            var v = (BigInteger)Math.Sqrt(xAsDub);
+            v = (v + x / v) >> 1;
             if (xAsDub > 2e63)
             {
-                v = (v + (x / v)) >> 1;
+                v = (v + x / v) >> 1;
             }
             //if (v * v > x)
             //    Console.WriteLine($"{(v * v) > x}, {v * v}, {x}, {x - (v * v)}, {(double)(x - (v * v)).GetBitLength() / x.GetBitLength()},  {2 * (x - (v * v)).GetBitLength()}/{x.GetBitLength()}  ");
 
-            return (v * v <= x) ? v : v - 1;
+            return v * v <= x ? v : v - 1;
         }
 
-        int xLen = (int)x.GetBitLength();
-        int wantedPrecision = (xLen + 1) / 2;
-        int xLenMod = xLen + (xLen & 1) + 1;
+        var xLen = (int)x.GetBitLength();
+        var wantedPrecision = (xLen + 1) / 2;
+        var xLenMod = xLen + (xLen & 1) + 1;
 
         //////// Do the first Sqrt on hardware ////////
-        long tempX = (long)(x >> (xLenMod - 63));
-        double tempSqrt1 = Math.Sqrt(tempX);
-        ulong valLong = (ulong)BitConverter.DoubleToInt64Bits(tempSqrt1) & 0x1fffffffffffffL;
+        var tempX = (long)(x >> (xLenMod - 63));
+        var tempSqrt1 = Math.Sqrt(tempX);
+        var valLong = (ulong)BitConverter.DoubleToInt64Bits(tempSqrt1) & 0x1fffffffffffffL;
         if (valLong == 0)
         {
             valLong = 1UL << 53;
@@ -293,33 +287,33 @@ public static class BigIntegerSquareRoot
         //if (((BigInteger)valLong * valLong) > (x >> (xLenMod - 106))) valLong--;
 
         ////////  Classic Newton Iterations ////////
-        BigInteger val = ((BigInteger)valLong << (53 - 1)) + (x >> xLenMod - (3 * 53)) / valLong;
-        int size = 106;
+        var val = ((BigInteger)valLong << (53 - 1)) + (x >> (xLenMod - 3 * 53)) / valLong;
+        var size = 106;
         for (; size < 256; size <<= 1)
         {
-            val = (val << (size - 1)) + (x >> xLenMod - (3 * size)) / val;
+            val = (val << (size - 1)) + (x >> (xLenMod - 3 * size)) / val;
         }
 
         //BigInteger tempVal = val >> (size - wantedPrecision); if ((tempVal * tempVal) > x) val--;
 
         if (xAsDub > 4e254) // 4e254 = 1<<845.76973610139
         {
-            int numOfNewtonSteps = BitOperations.Log2((uint)(wantedPrecision / size)) + 1; // technically should be "(wantedPrecision-1)/size" but faster without
+            var numOfNewtonSteps =
+                BitOperations.Log2((uint)(wantedPrecision / size)) + 1; // technically should be "(wantedPrecision-1)/size" but faster without
 
             //////  Apply Starting Size  ////////
-            int wantedSize = (wantedPrecision >> numOfNewtonSteps) + 2;
-            int needToShiftBy = size - wantedSize;
+            var wantedSize = (wantedPrecision >> numOfNewtonSteps) + 2;
+            var needToShiftBy = size - wantedSize;
             val >>= needToShiftBy;
             size = wantedSize;
             do
             {
                 ////////  Newton Plus Iterations  ////////
-                int shiftX = xLenMod - (3 * size);
-                BigInteger valSqrd = (val * val) << (size - 1);
-                BigInteger valSU = (x >> shiftX) - valSqrd;
-                val = (val << size) + (valSU / val);
+                var shiftX = xLenMod - 3 * size;
+                var valSqrd = (val * val) << (size - 1);
+                var valSU = (x >> shiftX) - valSqrd;
+                val = (val << size) + valSU / val;
                 size *= 2;
-
             } while (size < wantedPrecision);
         }
 
@@ -364,28 +358,27 @@ public static class BigIntegerSquareRoot
     //    allow us to calculate the bottom half. There is a ModPow that can kind of be used for this but it is not 
     //    super efficient. The below also has an error that needs to be worked out as well.    
     /// <summary>
-    /// Performs a Single Newton Plus iteration step.
+    ///     Performs a Single Newton Plus iteration step.
     /// </summary>
     /// <param name="x">The input. The value we are trying to find the Sqrt of.</param>
     /// <param name="xLenMod">It is Len(X) rounded up to the next even number. It is just calculated once.</param>
     /// <param name="size">The maintained current size of val so it does not need to be recalculated.</param>
     /// <param name="val">The current result. With each call to this function it doubles in size(and precision).</param>
-    static void NewtonPlus(BigInteger x, int xLenMod, ref int size, ref BigInteger val)
+    private static void NewtonPlus(BigInteger x, int xLenMod, ref int size, ref BigInteger val)
     {
-        int shiftX = xLenMod - (3 * size);
-        BigInteger valSqrd = (val * val) << (size - 1);
-        BigInteger valSU = (x >> shiftX) - valSqrd;
-        val = (val << size) + (valSU / val);
+        var shiftX = xLenMod - 3 * size;
+        var valSqrd = (val * val) << (size - 1);
+        var valSU = (x >> shiftX) - valSqrd;
+        val = (val << size) + valSU / val;
         size *= 2;
     }
 
 
     // This was added just to compare with the Newton Plus.
-    static void NewtonClassic(BigInteger x, int xLenMod, ref int size, ref BigInteger val)
+    private static void NewtonClassic(BigInteger x, int xLenMod, ref int size, ref BigInteger val)
     {
-        BigInteger tempX = x >> xLenMod - (3 * size) + 1;
+        var tempX = x >> (xLenMod - 3 * size + 1);
         val = (val << (size - 1)) + tempX / val;
         size <<= 1;
     }
-
 }

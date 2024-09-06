@@ -1,10 +1,8 @@
-﻿using System.Numerics;
-
-namespace Uniswap.Sdk.V3.Entities;
+﻿namespace Uniswap.Sdk.V3.Entities;
 
 /// <summary>
-/// This tick data provider does not know how to fetch any tick data. It throws whenever it is required. Useful if you
-/// do not need to load tick data for your use case.
+///     This tick data provider does not know how to fetch any tick data. It throws whenever it is required. Useful if you
+///     do not need to load tick data for your use case.
 /// </summary>
 public class NoTickDataProvider : ITickDataProvider
 {

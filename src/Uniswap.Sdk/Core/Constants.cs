@@ -30,22 +30,19 @@ public static class Constants
     };
 
     public static readonly Dictionary<string, string> NativeCurrencyName =
-    new()
-    {
-        // Strings match input for CLI
-        { "ETHER", "ETH" },
-        { "MATIC", "MATIC" },
-        { "CELO", "CELO" },
-        { "GNOSIS ", "XDAI" },
-        { "MOONBEAM", "GLMR" },
-        { "BNB", "BNB" },
-        { "AVAX", "AVAX" },
-        { "ROOTSTOCK ", "RBTC" },
-    };
+        new()
+        {
+            // Strings match input for CLI
+            { "ETHER", "ETH" },
+            { "MATIC", "MATIC" },
+            { "CELO", "CELO" },
+            { "GNOSIS ", "XDAI" },
+            { "MOONBEAM", "GLMR" },
+            { "BNB", "BNB" },
+            { "AVAX", "AVAX" },
+            { "ROOTSTOCK ", "RBTC" }
+        };
 
-    
 
     public static readonly BigInteger MaxUint256 = BigInteger.Parse("115792089237316195423570985008687907853269984665640564039457584007913129639935");
-
-
 }

@@ -4,7 +4,7 @@ namespace Uniswap.Sdk.Testing.Core.Utils;
 
 public class SortedInsertTests
 {
-    private Comparison<int> comp = (a, b) => a - b;
+    private readonly Comparison<int> comp = (a, b) => a - b;
 
     [Fact]
     public void ThrowsIfMaxSizeIsZero()
@@ -68,7 +68,7 @@ public class SortedInsertTests
 
     public class MaxSizeOfOneTests
     {
-        private Comparison<int> comp = (a, b) => a - b;
+        private readonly Comparison<int> comp = (a, b) => a - b;
 
         [Fact]
         public void EmptyAdd()

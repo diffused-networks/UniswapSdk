@@ -24,8 +24,8 @@ public class TickListDataProviderTests
             Task.FromResult(new TickListDataProvider(
                 new List<Tick>
                 {
-                    new Tick ( -1, -1,  1 ),
-                    new Tick ( 1,  2,  1 )
+                    new(-1, -1, 1),
+                    new(1, 2, 1)
                 },
                 1
             ))
@@ -38,8 +38,8 @@ public class TickListDataProviderTests
         var provider = new TickListDataProvider(
             new List<Tick>
             {
-                new Tick ( -1, -1,  1 ),
-                new Tick ( 1,1,  1 ),
+                new(-1, -1, 1),
+                new(1, 1, 1)
             },
             1
         );
@@ -52,8 +52,8 @@ public class TickListDataProviderTests
         var provider = new TickListDataProvider(
             new List<Tick>
             {
-                new Tick ( -1, -1,  1 ),
-                new Tick ( 1,1,  1 ),
+                new(-1, -1, 1),
+                new(1, 1, 1)
             },
             1
         );
@@ -68,8 +68,8 @@ public class TickListDataProviderTests
         var provider = new TickListDataProvider(
             new List<Tick>
             {
-                new Tick ( -1, -1,  1 ),
-                new Tick ( 1,1,  1 ),
+                new(-1, -1, 1),
+                new(1, 1, 1)
             },
             1
         );

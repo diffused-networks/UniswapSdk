@@ -7,8 +7,7 @@ namespace Uniswap.Sdk.V3;
 
 public static class SelfPermit
 {
-    public static ABIEncode INTERFACE = new ABIEncode();
-
+    public static ABIEncode INTERFACE = new();
 
 
     public static string EncodePermit(Token token, object options)
@@ -23,7 +22,8 @@ public static class SelfPermit
                 allowedOptions.R,
                 allowedOptions.S).ToHex();
         }
-        else if (options is IStandardPermitArguments standardOptions)
+
+        if (options is IStandardPermitArguments standardOptions)
         {
             return INTERFACE.GetABIEncoded("selfPermit",
                 token.Address,
@@ -33,10 +33,8 @@ public static class SelfPermit
                 standardOptions.R,
                 standardOptions.S).ToHex();
         }
-        else
-        {
-            throw new ArgumentException("Invalid permit options");
-        }
+
+        throw new ArgumentException("Invalid permit options");
     }
 
     public interface IAllowedPermitArguments
@@ -47,6 +45,7 @@ public static class SelfPermit
         BigInteger Nonce { get; }
         BigInteger Expiry { get; }
     }
+
     public interface IStandardPermitArguments
     {
         byte V { get; }

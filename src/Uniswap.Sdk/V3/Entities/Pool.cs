@@ -2,6 +2,7 @@
 using Uniswap.Sdk.Core.Entities;
 using Uniswap.Sdk.Core.Entities.Fractions;
 using Uniswap.Sdk.V3.Utils;
+
 // ReSharper disable InconsistentNaming
 
 namespace Uniswap.Sdk.V3.Entities;
@@ -18,7 +19,7 @@ public class Pool
         //if (!(fee is int) || fee >= 1_000_000)
         //    throw new ArgumentException("FEE");
 
-      
+
         var tickCurrentSqrtRatioX96 = TickMath.GetSqrtRatioAtTick(tickCurrent);
         var nextTickSqrtRatioX96 = TickMath.GetSqrtRatioAtTick(tickCurrent + 1);
         if (sqrtRatioX96 < tickCurrentSqrtRatioX96 || sqrtRatioX96 > nextTickSqrtRatioX96)
@@ -115,7 +116,8 @@ public class Pool
             new Pool(Token0, Token1, Fee, sqrtRatioX96, liquidity, tickCurrent, TickDataProvider));
     }
 
-    private async Task<(BigInteger amountCalculated, BigInteger sqrtRatioX96, BigInteger liquidity, int tickCurrent)> Swap(bool zeroForOne, BigInteger amountSpecified, BigInteger? sqrtPriceLimitX96 = null)
+    private async Task<(BigInteger amountCalculated, BigInteger sqrtRatioX96, BigInteger liquidity, int tickCurrent)> Swap(bool zeroForOne,
+        BigInteger amountSpecified, BigInteger? sqrtPriceLimitX96 = null)
     {
         return await V3Swap.ExecuteAsync(
             (int)Fee,

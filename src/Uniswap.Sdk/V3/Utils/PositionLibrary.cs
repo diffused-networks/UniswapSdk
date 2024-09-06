@@ -14,12 +14,12 @@ public static class PositionLibrary
         BigInteger feeGrowthInside0X128,
         BigInteger feeGrowthInside1X128)
     {
-        BigInteger tokensOwed0 = BigInteger.Divide(
+        var tokensOwed0 = BigInteger.Divide(
             BigInteger.Multiply(SubIn256(feeGrowthInside0X128, feeGrowthInside0LastX128), liquidity),
             Q128
         );
 
-        BigInteger tokensOwed1 = BigInteger.Divide(
+        var tokensOwed1 = BigInteger.Divide(
             BigInteger.Multiply(SubIn256(feeGrowthInside1X128, feeGrowthInside1LastX128), liquidity),
             Q128
         );
