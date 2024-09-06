@@ -1,8 +1,9 @@
 ﻿using System.Numerics;
-using Uniswap.Sdk.V3;
-using Uniswap.Sdk.V3.Utils;
+
 // ReSharper disable InconsistentNaming
 
+
+namespace Uniswap.Sdk.V3.Utils;
 
 public static class SqrtPriceMath
 {
@@ -15,7 +16,7 @@ public static class SqrtPriceMath
     private static BigInteger AddIn256(BigInteger x, BigInteger y)
     {
         BigInteger sum = BigInteger.Add(x, y);
-        return sum & ~Constants.MaxUint256;
+        return sum & Constants.MaxUint256;
     }
 
     public static BigInteger GetAmount0Delta(BigInteger sqrtRatioAX96, BigInteger sqrtRatioBX96, BigInteger liquidity, bool roundUp)
@@ -35,14 +36,18 @@ public static class SqrtPriceMath
 
     public static BigInteger GetAmount1Delta(BigInteger sqrtRatioAX96, BigInteger sqrtRatioBX96, BigInteger liquidity, bool roundUp)
     {
+
+
         if (sqrtRatioAX96 > sqrtRatioBX96)
         {
             (sqrtRatioAX96, sqrtRatioBX96) = (sqrtRatioBX96, sqrtRatioAX96);
-        }
 
+
+        }
+      
         return roundUp
             ? FullMath.MulDivRoundingUp(liquidity, sqrtRatioBX96 - sqrtRatioAX96, Constants.Q96)
-            : BigInteger.Divide(BigInteger.Multiply(liquidity, sqrtRatioBX96 - sqrtRatioAX96), Constants.Q96);
+            : BigInteger.Divide(BigInteger.Multiply(liquidity, BigInteger.Subtract(sqrtRatioBX96, sqrtRatioAX96)), Constants.Q96);
     }
 
     public static BigInteger GetNextSqrtPriceFromInput(BigInteger sqrtPX96, BigInteger liquidity, BigInteger amountIn, bool zeroForOne)
@@ -77,15 +82,21 @@ public static class SqrtPriceMath
         if (add)
         {
             BigInteger product = MultiplyIn256(amount, sqrtPX96);
+
+            //Console.WriteLine(BigInteger.Divide(product, amount));
+
             if (BigInteger.Divide(product, amount) == sqrtPX96)
             {
                 BigInteger denominator = AddIn256(numerator1, product);
+
+             
+
                 if (denominator >= numerator1)
                 {
                     return FullMath.MulDivRoundingUp(numerator1, sqrtPX96, denominator);
                 }
             }
-
+        
             return FullMath.MulDivRoundingUp(numerator1, Constants.ONE, BigInteger.Add(BigInteger.Divide(numerator1, sqrtPX96), amount));
         }
         else

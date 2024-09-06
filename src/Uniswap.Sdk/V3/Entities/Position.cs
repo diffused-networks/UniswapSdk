@@ -127,8 +127,8 @@ public class Position
 
     private (BigInteger sqrtRatioX96Lower, BigInteger sqrtRatioX96Upper) RatiosAfterSlippage(Percent slippageTolerance)
     {
-        var priceLower = Pool.Token0Price.AsFraction.Multiply(new Percent(1).Subtract(slippageTolerance));
-        var priceUpper = Pool.Token0Price.AsFraction.Multiply(slippageTolerance.Add(1));
+        var priceLower = Pool.Token0Price.AsFraction().Multiply(new Percent(1).Subtract(slippageTolerance));
+        var priceUpper = Pool.Token0Price.AsFraction().Multiply(slippageTolerance.Add(1));
         var sqrtRatioX96Lower = EncodeSqrtRatioX96.Encode(priceLower.Numerator, priceLower.Denominator);
         if (sqrtRatioX96Lower <= TickMath.MIN_SQRT_RATIO)
         {

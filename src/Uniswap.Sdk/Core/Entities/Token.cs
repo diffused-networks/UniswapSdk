@@ -76,7 +76,7 @@ public class Token : BaseCurrency, IEquatable<Token>
     /// <returns>True if the tokens are equivalent, false otherwise</returns>
     public bool Equals(Token? other)
     {
-        return other!.IsToken && ChainId == other.ChainId && Address.ToLower() == ((Token)other).Address.ToLower();
+        return other is { IsToken: true } && ChainId == other.ChainId && Address.ToLower() == ((Token)other).Address.ToLower();
     }
 
     public override bool Equals(BaseCurrency other)
@@ -110,7 +110,7 @@ public class Token : BaseCurrency, IEquatable<Token>
     /// <summary>
     /// Return this token, which does not need to be wrapped
     /// </summary>
-    public override Token Wrapped => this;
+    public override Token Wrapped() => this;
 
 
 }

@@ -22,11 +22,11 @@ public class Route<TInput, TOutput> where TInput : BaseCurrency where TOutput : 
         if (!allOnSameChain)
             throw new ArgumentException("All pools must be on the same chain", nameof(pools));
 
-        Token wrappedInput = input.Wrapped;
+        Token wrappedInput = input.Wrapped();
         if (!pools[0].InvolvesToken(wrappedInput))
             throw new ArgumentException("First pool must involve the input token", nameof(input));
 
-        if (!pools[pools.Count - 1].InvolvesToken(output.Wrapped))
+        if (!pools[pools.Count - 1].InvolvesToken(output.Wrapped()))
             throw new ArgumentException("Last pool must involve the output token", nameof(output));
 
         List<Token> tokenPath = new List<Token> { wrappedInput };
@@ -56,7 +56,7 @@ public class Route<TInput, TOutput> where TInput : BaseCurrency where TOutput : 
                 return _midPrice;
 
             var result = Pools.Skip(1).Aggregate(
-                Pools[0].Token0.Equals(Input.Wrapped)
+                Pools[0].Token0.Equals(Input.Wrapped())
                     ? new { NextInput = Pools[0].Token1, Price = Pools[0].Token0Price }
                     : new { NextInput = Pools[0].Token0, Price = Pools[0].Token1Price },
                 (acc, pool) =>

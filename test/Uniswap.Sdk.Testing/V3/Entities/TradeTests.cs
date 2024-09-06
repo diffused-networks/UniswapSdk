@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using System.Text.Json;
 using Uniswap.Sdk.Core;
 using Uniswap.Sdk.Core.Entities;
 using Uniswap.Sdk.Core.Entities.Fractions;
@@ -60,6 +61,13 @@ public class TradeTests
         CurrencyAmount<Token>.FromRawAmount(Weth9.Tokens[1], BigInteger.Parse("100000")),
         CurrencyAmount<Token>.FromRawAmount(token2, BigInteger.Parse("100000"))
     );
+
+    private readonly ITestOutputHelper testOutputHelper;
+
+    public TradeTests(ITestOutputHelper testOutputHelper)
+    {
+        this.testOutputHelper = testOutputHelper;
+    }
 
     private static Pool V2StylePool(CurrencyAmount<Token> reserve0, CurrencyAmount<Token> reserve1, Constants.FeeAmount feeAmount = Constants.FeeAmount.MEDIUM)
     {
@@ -227,10 +235,11 @@ public class TradeTests
     public void CreateUncheckedTrade_ThrowsIfInputCurrencyDoesNotMatchRoute()
     {
         Assert.Throws<ArgumentException>(() =>
-            Trade<Token, Token>.CreateUncheckedTrade(
-                new Route<Token, Token>(new List<Pool> { pool_0_1 }, token0, token1),
-                CurrencyAmount<Token>.FromRawAmount(token2, 10000),
-                CurrencyAmount<Token>.FromRawAmount(token1, 10000),
+            Trade<Token, Token>.CreateUncheckedTrade( new RouteInput<Token, Token>(){
+                Route = new Route<Token, Token>([pool_0_1], token0, token1),
+               InputAmount = CurrencyAmount<Token>.FromRawAmount(token2, 10000),
+               OutputAmount = CurrencyAmount<Token>.FromRawAmount(token1, 10000)
+                },
                 TradeType.EXACT_INPUT
             )
         );
@@ -241,10 +250,11 @@ public class TradeTests
     {
         Assert.Throws<ArgumentException>(() =>
             Trade<Token, Token>.CreateUncheckedTrade
-            (
-                new Route<Token, Token>(new List<Pool> { pool_0_1 }, token0, token1),
-                CurrencyAmount<Token>.FromRawAmount(token0, 10000),
-                CurrencyAmount<Token>.FromRawAmount(token2, 10000),
+            (new RouteInput<Token, Token>(){
+                    Route = new Route<Token, Token>([pool_0_1], token0, token1),
+                    InputAmount = CurrencyAmount<Token>.FromRawAmount(token0, 10000),
+                    OutputAmount = CurrencyAmount<Token>.FromRawAmount(token2, 10000)
+                },
                 TradeType.EXACT_INPUT
             )
         );
@@ -254,9 +264,11 @@ public class TradeTests
     public void CreateUncheckedTrade_CanCreateAnExactInputTradeWithoutSimulating()
     {
         Trade<Token, Token>.CreateUncheckedTrade(
-            new Route<Token, Token>(new List<Pool> { pool_0_1 }, token0, token1),
-            CurrencyAmount<Token>.FromRawAmount(token0, 10000),
-            CurrencyAmount<Token>.FromRawAmount(token1, 100000),
+            new RouteInput<Token, Token>(){
+                Route = new Route<Token, Token>([pool_0_1], token0, token1),
+                InputAmount = CurrencyAmount<Token>.FromRawAmount(token0, 10000),
+                OutputAmount = CurrencyAmount<Token>.FromRawAmount(token1, 100000)
+            },
             TradeType.EXACT_INPUT
         );
     }
@@ -265,9 +277,11 @@ public class TradeTests
     public void CreateUncheckedTrade_CanCreateAnExactOutputTradeWithoutSimulating()
     {
         Trade<Token, Token>.CreateUncheckedTrade(
-            new Route<Token, Token>(new List<Pool> { pool_0_1 }, token0, token1),
-            CurrencyAmount<Token>.FromRawAmount(token0, 10000),
-            CurrencyAmount<Token>.FromRawAmount(token1, 100000),
+            new RouteInput<Token, Token>(){
+                Route = new Route<Token, Token>([pool_0_1], token0, token1),
+                InputAmount = CurrencyAmount<Token>.FromRawAmount(token0, 10000),
+                OutputAmount = CurrencyAmount<Token>.FromRawAmount(token1, 100000)}
+            ,
             TradeType.EXACT_OUTPUT
         );
     }
@@ -280,13 +294,13 @@ public class TradeTests
                 [
                     new RouteInput<Token, Token>
                     {
-                        Route = new Route<Token, Token>(new List<Pool> { pool_1_2 }, token2, token1),
+                        Route = new Route<Token, Token>([pool_1_2], token2, token1),
                         InputAmount = CurrencyAmount<Token>.FromRawAmount(token2, 2000),
                         OutputAmount = CurrencyAmount<Token>.FromRawAmount(token1, 2000)
                     },
                     new RouteInput<Token, Token>
                     {
-                        Route = new Route<Token, Token>(new List<Pool> { pool_0_1 }, token0, token1),
+                        Route = new Route<Token, Token>([pool_0_1], token0, token1),
                         InputAmount = CurrencyAmount<Token>.FromRawAmount(token2, 8000),
                         OutputAmount = CurrencyAmount<Token>.FromRawAmount(token1, 8000)
                     }
@@ -297,88 +311,80 @@ public class TradeTests
     }
 
 
-    //[Fact]
-    //public void CreateUncheckedTradeWithMultipleRoutes_ThrowsIfOutputCurrencyDoesNotMatchRouteWithMultipleRoutes()
-    //{
-    //    Assert.Throws<Exception>(() =>
-    //        Trade.CreateUncheckedTradeWithMultipleRoutes(new MultipleRoutesInput
-    //        {
-    //            Routes = new List<RouteInput>
-    //            {
-    //                new RouteInput
-    //                {
-    //                    Route = new Route<Token,Token>(new List<Pool> { pool_0_2 }, token0, token2),
-    //                    InputAmount = CurrencyAmount<Token>.FromRawAmount(token0, 10000),
-    //                    OutputAmount = CurrencyAmount<Token>.FromRawAmount(token2, 10000),
-    //                },
-    //                new RouteInput
-    //                {
-    //                    Route = new Route<Token,Token>(new List<Pool> { pool_0_1 }, token0, token1),
-    //                    InputAmount = CurrencyAmount<Token>.FromRawAmount(token0, 10000),
-    //                    OutputAmount = CurrencyAmount<Token>.FromRawAmount(token2, 10000),
-    //                }
-    //            },
-    //            TradeType = TradeType.EXACT_INPUT,
-    //        })
-    //    );
-    //}
+    [Fact]
+    public void CreateUncheckedTradeWithMultipleRoutes_ThrowsIfOutputCurrencyDoesNotMatchRouteWithMultipleRoutes()
+    {
+        Assert.Throws<ArgumentException>(() =>
+            Trade<Token, Token>.CreateUncheckedTradeWithMultipleRoutes(
+                [
+                    new RouteInput<Token, Token>
+                    {
+                        Route = new Route<Token, Token>([pool_0_2], token0, token2),
+                        InputAmount = CurrencyAmount<Token>.FromRawAmount(token0, 10000),
+                        OutputAmount = CurrencyAmount<Token>.FromRawAmount(token2, 10000)
+                    },
+                    new RouteInput<Token, Token>
+                    {
+                        Route = new Route<Token, Token>([pool_0_1], token0, token1),
+                        InputAmount = CurrencyAmount<Token>.FromRawAmount(token0, 10000),
+                        OutputAmount = CurrencyAmount<Token>.FromRawAmount(token2, 10000)
+                    }
+                ],
+                TradeType.EXACT_INPUT
+            )
+        );
+    }
 
-    //[Fact]
-    //public void CreateUncheckedTradeWithMultipleRoutes_CanCreateAnExactInputTradeWithoutSimulatingWithMultipleRoutes()
-    //{
-    //    Trade.CreateUncheckedTradeWithMultipleRoutes(new MultipleRoutesInput
-    //    {
-    //        Routes = new List<RouteInput>
-    //        {
-    //            new RouteInput
-    //            {
-    //                Route = new Route<Token,Token>(new List<Pool> { pool_0_1 }, token0, token1),
-    //                InputAmount = CurrencyAmount<Token>.FromRawAmount(token0, 5000),
-    //                OutputAmount = CurrencyAmount<Token>.FromRawAmount(token1, 50000),
-    //            },
-    //            new RouteInput
-    //            {
-    //                Route = new Route<Token,Token>(new List<Pool> { pool_0_2, pool_1_2 }, token0, token1),
-    //                InputAmount = CurrencyAmount<Token>.FromRawAmount(token0, 5000),
-    //                OutputAmount = CurrencyAmount<Token>.FromRawAmount(token1, 50000),
-    //            }
-    //        },
-    //        TradeType = TradeType.EXACT_INPUT,
-    //    });
-    //}
+    [Fact]
+    public void CreateUncheckedTradeWithMultipleRoutes_CanCreateAnExactInputTradeWithoutSimulatingWithMultipleRoutes()
+    {
+        Trade<Token,Token>.CreateUncheckedTradeWithMultipleRoutes([
+                new RouteInput<Token,Token>
+                {
+                    Route = new Route<Token,Token>([pool_0_1], token0, token1),
+                    InputAmount = CurrencyAmount<Token>.FromRawAmount(token0, 5000),
+                    OutputAmount = CurrencyAmount<Token>.FromRawAmount(token1, 50000),
+                },
+                new RouteInput<Token,Token>
+                {
+                    Route = new Route<Token,Token>([pool_0_2, pool_1_2], token0, token1),
+                    InputAmount = CurrencyAmount<Token>.FromRawAmount(token0, 5000),
+                    OutputAmount = CurrencyAmount<Token>.FromRawAmount(token1, 50000),
+                }
+                ],
+             TradeType.EXACT_INPUT);
+    }
 
-    //[Fact]
-    //public void CreateUncheckedTradeWithMultipleRoutes_CanCreateAnExactOutputTradeWithoutSimulatingWithMultipleRoutes()
-    //{
-    //    Trade.CreateUncheckedTradeWithMultipleRoutes(new MultipleRoutesInput
-    //    {
-    //        Routes = new List<RouteInput>
-    //        {
-    //            new RouteInput
-    //            {
-    //                Route = new Route<Token,Token>(new List<Pool> { pool_0_1 }, token0, token1),
-    //                InputAmount = CurrencyAmount<Token>.FromRawAmount(token0, 5001),
-    //                OutputAmount = CurrencyAmount<Token>.FromRawAmount(token1, 50000),
-    //            },
-    //            new RouteInput
-    //            {
-    //                Route = new Route<Token,Token>(new List<Pool> { pool_0_2, pool_1_2 }, token0, token1),
-    //                InputAmount = CurrencyAmount<Token>.FromRawAmount(token0, 4999),
-    //                OutputAmount = CurrencyAmount<Token>.FromRawAmount(token1, 50000),
-    //            }
-    //        },
-    //        TradeType = TradeType.EXACT_OUTPUT,
-    //    });
-    //}
+    [Fact]
+    public void CreateUncheckedTradeWithMultipleRoutes_CanCreateAnExactOutputTradeWithoutSimulatingWithMultipleRoutes()
+    {
+        Trade<Token, Token>.CreateUncheckedTradeWithMultipleRoutes([
+                new RouteInput<Token,Token>
+                {
+                    Route = new Route<Token,Token>([pool_0_1], token0, token1),
+                    InputAmount = CurrencyAmount<Token>.FromRawAmount(token0, 5001),
+                    OutputAmount = CurrencyAmount<Token>.FromRawAmount(token1, 50000),
+                },
+                new RouteInput<Token,Token>
+                {
+                    Route = new Route<Token,Token>([pool_0_2, pool_1_2], token0, token1),
+                    InputAmount = CurrencyAmount<Token>.FromRawAmount(token0, 4999),
+                    OutputAmount = CurrencyAmount<Token>.FromRawAmount(token1, 50000),
+                }
+            ],
+       TradeType.EXACT_OUTPUT
+        );
+    }
 
 
     [Fact]
     public void RouteAndSwaps()
     {
         var singleRoute = Trade<Token, Token>.CreateUncheckedTrade(
-            new Route<Token, Token>(new List<Pool> { pool_0_1, pool_1_2 }, token0, token2),
-            CurrencyAmount<Token>.FromRawAmount(token0, 100),
-            CurrencyAmount<Token>.FromRawAmount(token2, 69),
+            new RouteInput<Token, Token>(){
+            Route=new Route<Token, Token>([pool_0_1, pool_1_2], token0, token2),
+            InputAmount = CurrencyAmount<Token>.FromRawAmount(token0, 100),
+            OutputAmount = CurrencyAmount<Token>.FromRawAmount(token2, 69)},
             TradeType.EXACT_INPUT
         );
 
@@ -386,13 +392,13 @@ public class TradeTests
             [
                 new RouteInput<Token, Token>
                 {
-                    Route = new Route<Token, Token>(new List<Pool> { pool_0_1, pool_1_2 }, token0, token2),
+                    Route = new Route<Token, Token>([pool_0_1, pool_1_2], token0, token2),
                     InputAmount = CurrencyAmount<Token>.FromRawAmount(token0, 50),
                     OutputAmount = CurrencyAmount<Token>.FromRawAmount(token2, 35)
                 },
                 new RouteInput<Token, Token>
                 {
-                    Route = new Route<Token, Token>(new List<Pool> { pool_0_2 }, token0, token2),
+                    Route = new Route<Token, Token>([pool_0_2], token0, token2),
                     InputAmount = CurrencyAmount<Token>.FromRawAmount(token0, 50),
                     OutputAmount = CurrencyAmount<Token>.FromRawAmount(token2, 34)
                 }
@@ -411,195 +417,188 @@ public class TradeTests
         });
     }
 
-    //[Fact]
-    //public void WorstExecutionPrice()
-    //{
-    //    // Test for EXACT_INPUT
-    //    var exactIn = Trade.CreateUncheckedTrade(new TradeParams
-    //    {
-    //        Route = new Route<Token,Token>(new List<Pool> { pool_0_1, pool_1_2 }, token0, token2),
-    //        InputAmount = CurrencyAmount<Token>.FromRawAmount(token0, 100),
-    //        OutputAmount = CurrencyAmount<Token>.FromRawAmount(token2, 69),
-    //        TradeType = TradeType.EXACT_INPUT,
-    //    });
+    [Fact]
+    public void WorstExecutionPrice()
+    {
+        // Test for EXACT_INPUT
+        var exactIn = Trade<Token,Token>.CreateUncheckedTrade(new RouteInput<Token, Token>()
+        {
+            Route = new Route<Token, Token>(new List<Pool> { pool_0_1, pool_1_2 }, token0, token2),
+            InputAmount = CurrencyAmount<Token>.FromRawAmount(token0, 100),
+            OutputAmount = CurrencyAmount<Token>.FromRawAmount(token2, 69),
+     
+        }, TradeType.EXACT_INPUT);
 
-    //    var exactInMultiRoute = Trade.CreateUncheckedTradeWithMultipleRoutes(new MultiRouteTradeParams
-    //    {
-    //        Routes = new List<RouteTradeParams>
-    //        {
-    //            new RouteTradeParams
-    //            {
-    //                Route = new Route<Token,Token>(new List<Pool> { pool_0_1, pool_1_2 }, token0, token2),
-    //                InputAmount = CurrencyAmount<Token>.FromRawAmount(token0, 50),
-    //                OutputAmount = CurrencyAmount<Token>.FromRawAmount(token2, 35),
-    //            },
-    //            new RouteTradeParams
-    //            {
-    //                Route = new Route<Token,Token>(new List<Pool> { pool_0_2 }, token0, token2),
-    //                InputAmount = CurrencyAmount<Token>.FromRawAmount(token0, 50),
-    //                OutputAmount = CurrencyAmount<Token>.FromRawAmount(token2, 34),
-    //            }
-    //        },
-    //        TradeType = TradeType.EXACT_INPUT,
-    //    });
+        var exactInMultiRoute = Trade<Token, Token>.CreateUncheckedTradeWithMultipleRoutes(
+            [
+               new RouteInput<Token, Token>
+               {
+                   Route = new Route<Token,Token>(new List<Pool> { pool_0_1, pool_1_2 }, token0, token2),
+                   InputAmount = CurrencyAmount<Token>.FromRawAmount(token0, 50),
+                   OutputAmount = CurrencyAmount<Token>.FromRawAmount(token2, 35),
+               },
+               new RouteInput<Token, Token>
+               {
+                   Route = new Route<Token,Token>(new List<Pool> { pool_0_2 }, token0, token2),
+                   InputAmount = CurrencyAmount<Token>.FromRawAmount(token0, 50),
+                   OutputAmount = CurrencyAmount<Token>.FromRawAmount(token2, 34),
+               }
+           ],
+         TradeType.EXACT_INPUT);
 
-    //    Assert.Throws<InvalidOperationException>(() => exactIn.MinimumAmountOut(new Percent(-1, 100)));
-    //    Assert.Equal(exactIn.ExecutionPrice, exactIn.WorstExecutionPrice(new Percent(0, 100)));
-    //    Assert.Equal(new Price(token0, token2, 100, 69), exactIn.WorstExecutionPrice(new Percent(0, 100)));
-    //    Assert.Equal(new Price(token0, token2, 100, 65), exactIn.WorstExecutionPrice(new Percent(5, 100)));
-    //    Assert.Equal(new Price(token0, token2, 100, 23), exactIn.WorstExecutionPrice(new Percent(200, 100)));
+        Assert.Throws<ArgumentException>(() => exactIn.MinimumAmountOut(new Percent(-1, 100)));
+        Assert.Equal(exactIn.ExecutionPrice, exactIn.WorstExecutionPrice(new Percent(0, 100)));
+        Assert.Equal(new Price<Token, Token>(token0, token2, 100, 69), exactIn.WorstExecutionPrice(new Percent(0, 100)));
+        Assert.Equal(new Price<Token, Token>(token0, token2, 100, 65), exactIn.WorstExecutionPrice(new Percent(5, 100)));
+        Assert.Equal(new Price<Token, Token>(token0, token2, 100, 23), exactIn.WorstExecutionPrice(new Percent(200, 100)));
 
-    //    Assert.Equal(new Price(token0, token2, 100, 69), exactInMultiRoute.WorstExecutionPrice(new Percent(0, 100)));
-    //    Assert.Equal(new Price(token0, token2, 100, 65), exactInMultiRoute.WorstExecutionPrice(new Percent(5, 100)));
-    //    Assert.Equal(new Price(token0, token2, 100, 23), exactInMultiRoute.WorstExecutionPrice(new Percent(200, 100)));
+        Assert.Equal(new Price<Token, Token>(token0, token2, 100, 69), exactInMultiRoute.WorstExecutionPrice(new Percent(0, 100)));
+        Assert.Equal(new Price<Token, Token>(token0, token2, 100, 65), exactInMultiRoute.WorstExecutionPrice(new Percent(5, 100)));
+        Assert.Equal(new Price<Token, Token>(token0, token2, 100, 23), exactInMultiRoute.WorstExecutionPrice(new Percent(200, 100)));
 
-    //    // Test for EXACT_OUTPUT
-    //    var exactOut = Trade.CreateUncheckedTrade(new TradeParams
-    //    {
-    //        Route = new Route<Token,Token>(new List<Pool> { pool_0_1, pool_1_2 }, token0, token2),
-    //        InputAmount = CurrencyAmount<Token>.FromRawAmount(token0, 156),
-    //        OutputAmount = CurrencyAmount<Token>.FromRawAmount(token2, 100),
-    //        TradeType = TradeType.EXACT_OUTPUT,
-    //    });
+        // Test for EXACT_OUTPUT
+        var exactOut = Trade<Token, Token>.CreateUncheckedTrade(new RouteInput<Token, Token>()
+        {
+            Route = new Route<Token, Token>(new List<Pool> { pool_0_1, pool_1_2 }, token0, token2),
+            InputAmount = CurrencyAmount<Token>.FromRawAmount(token0, 156),
+            OutputAmount = CurrencyAmount<Token>.FromRawAmount(token2, 100),
+      
+        },  TradeType.EXACT_OUTPUT);
 
-    //    var exactOutMultiRoute = Trade.CreateUncheckedTradeWithMultipleRoutes(new MultiRouteTradeParams
-    //    {
-    //        Routes = new List<RouteTradeParams>
-    //        {
-    //            new RouteTradeParams
-    //            {
-    //                Route = new Route<Token,Token>(new List<Pool> { pool_0_1, pool_1_2 }, token0, token2),
-    //                InputAmount = CurrencyAmount<Token>.FromRawAmount(token0, 78),
-    //                OutputAmount = CurrencyAmount<Token>.FromRawAmount(token2, 50),
-    //            },
-    //            new RouteTradeParams
-    //            {
-    //                Route = new Route<Token,Token>(new List<Pool> { pool_0_2 }, token0, token2),
-    //                InputAmount = CurrencyAmount<Token>.FromRawAmount(token0, 78),
-    //                OutputAmount = CurrencyAmount<Token>.FromRawAmount(token2, 50),
-    //            }
-    //        },
-    //        TradeType = TradeType.EXACT_OUTPUT,
-    //    });
+        var exactOutMultiRoute = Trade<Token, Token>.CreateUncheckedTradeWithMultipleRoutes(
 
-    //    Assert.Throws<InvalidOperationException>(() => exactOut.WorstExecutionPrice(new Percent(-1, 100)));
-    //    Assert.Equal(exactOut.ExecutionPrice, exactOut.WorstExecutionPrice(new Percent(0, 100)));
-    //    Assert.True(exactOut.WorstExecutionPrice(new Percent(0, 100)).Equals(new Price(token0, token2, 156, 100)));
-    //    Assert.True(exactOut.WorstExecutionPrice(new Percent(5, 100)).Equals(new Price(token0, token2, 163, 100)));
-    //    Assert.True(exactOut.WorstExecutionPrice(new Percent(200, 100)).Equals(new Price(token0, token2, 468, 100)));
+   [             new RouteInput<Token, Token>
+                {
+                    Route = new Route<Token,Token>(new List<Pool> { pool_0_1, pool_1_2 }, token0, token2),
+                    InputAmount = CurrencyAmount<Token>.FromRawAmount(token0, 78),
+                    OutputAmount = CurrencyAmount<Token>.FromRawAmount(token2, 50),
+                },
+                new RouteInput<Token, Token>
+                {
+                    Route = new Route<Token,Token>(new List<Pool> { pool_0_2 }, token0, token2),
+                    InputAmount = CurrencyAmount<Token>.FromRawAmount(token0, 78),
+                    OutputAmount = CurrencyAmount<Token>.FromRawAmount(token2, 50),
+                }]
+            ,
+          TradeType.EXACT_OUTPUT
+        );
 
-    //    Assert.True(exactOutMultiRoute.WorstExecutionPrice(new Percent(0, 100)).Equals(new Price(token0, token2, 156, 100)));
-    //    Assert.True(exactOutMultiRoute.WorstExecutionPrice(new Percent(5, 100)).Equals(new Price(token0, token2, 163, 100)));
-    //    Assert.True(exactOutMultiRoute.WorstExecutionPrice(new Percent(200, 100)).Equals(new Price(token0, token2, 468, 100)));
-    //}
+        Assert.Throws<ArgumentException>(() => exactOut.WorstExecutionPrice(new Percent(-1, 100)));
+        Assert.Equal(exactOut.ExecutionPrice, exactOut.WorstExecutionPrice(new Percent(0, 100)));
+        Assert.True(exactOut.WorstExecutionPrice(new Percent(0, 100)).Equals(new Price<Token, Token>(token0, token2, 156, 100)));
+        Assert.True(exactOut.WorstExecutionPrice(new Percent(5, 100)).Equals(new Price<Token, Token>(token0, token2, 163, 100)));
+        Assert.True(exactOut.WorstExecutionPrice(new Percent(200, 100)).Equals(new Price<Token, Token>(token0, token2, 468, 100)));
 
-    //[Fact]
-    //public void PriceImpact()
-    //{
-    //    // Test for EXACT_INPUT
-    //    var exactIn = Trade.CreateUncheckedTradeWithMultipleRoutes(new MultiRouteTradeParams
-    //    {
-    //        Routes = new List<RouteTradeParams>
-    //        {
-    //            new RouteTradeParams
-    //            {
-    //                Route = new Route<Token,Token>(new List<Pool> { pool_0_1, pool_1_2 }, token0, token2),
-    //                InputAmount = CurrencyAmount<Token>.FromRawAmount(token0, 100),
-    //                OutputAmount = CurrencyAmount<Token>.FromRawAmount(token2, 69),
-    //            }
-    //        },
-    //        TradeType = TradeType.EXACT_INPUT,
-    //    });
+        Assert.True(exactOutMultiRoute.WorstExecutionPrice(new Percent(0, 100)).Equals(new Price<Token, Token>(token0, token2, 156, 100)));
+        Assert.True(exactOutMultiRoute.WorstExecutionPrice(new Percent(5, 100)).Equals(new Price<Token, Token>(token0, token2, 163, 100)));
+        Assert.True(exactOutMultiRoute.WorstExecutionPrice(new Percent(200, 100)).Equals(new Price<Token, Token>(token0, token2, 468, 100)));
+    }
 
-    //    var exactInMultipleRoutes = Trade.CreateUncheckedTradeWithMultipleRoutes(new MultiRouteTradeParams
-    //    {
-    //        Routes = new List<RouteTradeParams>
-    //        {
-    //            new RouteTradeParams
-    //            {
-    //                Route = new Route<Token,Token>(new List<Pool> { pool_0_1, pool_1_2 }, token0, token2),
-    //                InputAmount = CurrencyAmount<Token>.FromRawAmount(token0, 90),
-    //                OutputAmount = CurrencyAmount<Token>.FromRawAmount(token2, 62),
-    //            },
-    //            new RouteTradeParams
-    //            {
-    //                Route = new Route<Token,Token>(new List<Pool> { pool_0_2 }, token0, token2),
-    //                InputAmount = CurrencyAmount<Token>.FromRawAmount(token0, 10),
-    //                OutputAmount = CurrencyAmount<Token>.FromRawAmount(token2, 7),
-    //            }
-    //        },
-    //        TradeType = TradeType.EXACT_INPUT,
-    //    });
+    [Fact]
+    public void PriceImpact()
+    {
+        // Test for EXACT_INPUT
+        var exactIn = Trade<Token, Token>.CreateUncheckedTradeWithMultipleRoutes(
+  [            
+      new RouteInput<Token, Token>
+                {
+                    Route = new Route<Token,Token>(new List<Pool> { pool_0_1, pool_1_2 }, token0, token2),
+                    InputAmount = CurrencyAmount<Token>.FromRawAmount(token0, 100),
+                    OutputAmount = CurrencyAmount<Token>.FromRawAmount(token2, 69)
+            }
+],
+             TradeType.EXACT_INPUT
+        );
 
-    //    Assert.Equal("17.2", exactIn.PriceImpact.ToSignificant(3));
-    //    Assert.Equal("19.8", exactInMultipleRoutes.PriceImpact.ToSignificant(3));
+        var exactInMultipleRoutes = Trade<Token, Token>.CreateUncheckedTradeWithMultipleRoutes(
+   [             new  RouteInput<Token, Token>
+                {
+                    Route = new Route<Token,Token>(new List<Pool> { pool_0_1, pool_1_2 }, token0, token2),
+                    InputAmount = CurrencyAmount<Token>.FromRawAmount(token0, 90),
+                    OutputAmount = CurrencyAmount<Token>.FromRawAmount(token2, 62),
+                },
+                new  RouteInput<Token, Token>
+                {
+                    Route = new Route<Token,Token>(new List<Pool> { pool_0_2 }, token0, token2),
+                    InputAmount = CurrencyAmount<Token>.FromRawAmount(token0, 10),
+                    OutputAmount = CurrencyAmount<Token>.FromRawAmount(token2, 7),
+                }]
+            ,
+        TradeType.EXACT_INPUT
+        );
 
-    //    // Test for EXACT_OUTPUT
-    //    var exactOut = Trade.CreateUncheckedTradeWithMultipleRoutes(new MultiRouteTradeParams
-    //    {
-    //        Routes = new List<RouteTradeParams>
-    //        {
-    //            new RouteTradeParams
-    //            {
-    //                Route = new Route<Token,Token>(new List<Pool> { pool_0_1, pool_1_2 }, token0, token2),
-    //                InputAmount = CurrencyAmount<Token>.FromRawAmount(token0, 156),
-    //                OutputAmount = CurrencyAmount<Token>.FromRawAmount(token2, 100),
-    //            }
-    //        },
-    //        TradeType = TradeType.EXACT_OUTPUT,
-    //    });
+        Assert.Equal("17.2", exactIn.PriceImpact.ToSignificant(3));
+        Assert.Equal("19.8", exactInMultipleRoutes.PriceImpact.ToSignificant(3));
 
-    //    var exactOutMultipleRoutes = Trade.CreateUncheckedTradeWithMultipleRoutes(new MultiRouteTradeParams
-    //    {
-    //        Routes = new List<RouteTradeParams>
-    //        {
-    //            new RouteTradeParams
-    //            {
-    //                Route = new Route<Token,Token>(new List<Pool> { pool_0_1, pool_1_2 }, token0, token2),
-    //                InputAmount = CurrencyAmount<Token>.FromRawAmount(token0, 140),
-    //                OutputAmount = CurrencyAmount<Token>.FromRawAmount(token2, 90),
-    //            },
-    //            new RouteTradeParams
-    //            {
-    //                Route = new Route<Token,Token>(new List<Pool> { pool_0_2 }, token0, token2),
-    //                InputAmount = CurrencyAmount<Token>.FromRawAmount(token0, 16),
-    //                OutputAmount = CurrencyAmount<Token>.FromRawAmount(token2, 10),
-    //            }
-    //        },
-    //        TradeType = TradeType.EXACT_OUTPUT,
-    //    });
+        // Test for EXACT_OUTPUT
+        var exactOut = Trade<Token, Token>.CreateUncheckedTradeWithMultipleRoutes(
 
-    //    Assert.Equal("23.1", exactOut.PriceImpact.ToSignificant(3));
-    //    Assert.Equal("25.5", exactOutMultipleRoutes.PriceImpact.ToSignificant(3));
-    //}
+    [            new  RouteInput<Token, Token>
+                {
+                    Route = new Route<Token,Token>(new List<Pool> { pool_0_1, pool_1_2 }, token0, token2),
+                    InputAmount = CurrencyAmount<Token>.FromRawAmount(token0, 156),
+                    OutputAmount = CurrencyAmount<Token>.FromRawAmount(token2, 100),
+                }]
+           ,
+     TradeType.EXACT_OUTPUT
+        );
+
+        var exactOutMultipleRoutes = Trade<Token, Token>.CreateUncheckedTradeWithMultipleRoutes(
+[                new  RouteInput<Token, Token>
+                {
+                    Route = new Route<Token,Token>(new List<Pool> { pool_0_1, pool_1_2 }, token0, token2),
+                    InputAmount = CurrencyAmount<Token>.FromRawAmount(token0, 140),
+                    OutputAmount = CurrencyAmount<Token>.FromRawAmount(token2, 90),
+                },
+                new  RouteInput<Token, Token>
+                {
+                    Route = new Route<Token,Token>(new List<Pool> { pool_0_2 }, token0, token2),
+                    InputAmount = CurrencyAmount<Token>.FromRawAmount(token0, 16),
+                    OutputAmount = CurrencyAmount<Token>.FromRawAmount(token2, 10),
+                }]
+           ,
+       TradeType.EXACT_OUTPUT
+        );
+
+        Assert.Equal("23.1", exactOut.PriceImpact.ToSignificant(3));
+        Assert.Equal("25.5", exactOutMultipleRoutes.PriceImpact.ToSignificant(3));
+    }
 
     [Fact]
     public async Task BestTradeExactIn_ThrowsWithEmptyPools()
     {
-        await Assert.ThrowsAsync<Exception>(() =>
-            Trade<Token,Token>.BestTradeExactIn(new List<Pool>(), CurrencyAmount<Token>.FromRawAmount(token0, 10000), token2)
+        await Assert.ThrowsAsync<ArgumentException>(() =>
+            Trade<Token, Token>.BestTradeExactIn([], CurrencyAmount<Token>.FromRawAmount(token0, 10000), token2)
         );
     }
 
     [Fact]
     public async Task BestTradeExactIn_ThrowsWithMaxHopsOf0()
     {
-        //await Assert.ThrowsAsync<Exception>(() =>
-        //    Trade<Token, Token>.BestTradeExactIn(new List<Pool> { pool_0_2 }, CurrencyAmount<Token>.FromRawAmount(token0, 10000), token2, maxHops: 0)
-        //);
+        await Assert.ThrowsAsync<ArgumentException>(() =>
+            Trade<Token, Token>.BestTradeExactIn([pool_0_2], CurrencyAmount<Token>.FromRawAmount(token0, 10000), token2,
+                new Trade<Token, Token>.BestTradeOptions { MaxHops = 0 })
+        );
+    }
+
+    public static string JsonPrettify(object obj)
+    {
+        return JsonSerializer.Serialize(obj, new JsonSerializerOptions { WriteIndented = true });
     }
 
     [Fact]
     public async Task BestTradeExactIn_ProvidesBestRoute()
     {
-        var result = await Trade<Token, Token>.BestTradeExactIn(new List<Pool> { pool_0_1, pool_0_2, pool_1_2 }, CurrencyAmount<Token>.FromRawAmount(token0, 10000), token2);
+        var result = await Trade<Token, Token>.BestTradeExactIn([pool_0_1, pool_0_2, pool_1_2],
+            CurrencyAmount<Token>.FromRawAmount(token0, 10000), token2);
+
         Assert.Equal(2, result.Count);
-        Assert.Equal(1, result[0].Swaps[0].Route.Pools.Count);
-        Assert.Equal(new List<Token> { token0, token2 }, result[0].Swaps[0].Route.TokenPath);
+        Assert.Single(result[0].Swaps[0].Route.Pools);
+        Assert.Equal([token0, token2], result[0].Swaps[0].Route.TokenPath);
         Assert.True(result[0].InputAmount.Equals(CurrencyAmount<Token>.FromRawAmount(token0, 10000)));
         Assert.True(result[0].OutputAmount.Equals(CurrencyAmount<Token>.FromRawAmount(token2, 9971)));
         Assert.Equal(2, result[1].Swaps[0].Route.Pools.Count);
-        Assert.Equal(new List<Token> { token0, token1, token2 }, result[1].Swaps[0].Route.TokenPath);
+        Assert.Equal([token0, token1, token2], result[1].Swaps[0].Route.TokenPath);
         Assert.True(result[1].InputAmount.Equals(CurrencyAmount<Token>.FromRawAmount(token0, 10000)));
         Assert.True(result[1].OutputAmount.Equals(CurrencyAmount<Token>.FromRawAmount(token2, 7004)));
     }
@@ -607,80 +606,87 @@ public class TradeTests
     [Fact]
     public async Task BestTradeExactIn_RespectsMaxHops()
     {
-        //var result = await Trade<Token, Token>.BestTradeExactIn(new List<Pool> { pool_0_1, pool_0_2, pool_1_2 }, CurrencyAmount<Token>.FromRawAmount(token0, 10), token2, maxHops: 1);
-        //Assert.Single(result);
-        //Assert.Equal(1, result[0].Swaps[0].Route.Pools.Count);
-        //Assert.Equal(new List<Token> { token0, token2 }, result[0].Swaps[0].Route.TokenPath);
+        var result = await Trade<Token, Token>.BestTradeExactIn([pool_0_1, pool_0_2, pool_1_2], CurrencyAmount<Token>.FromRawAmount(token0, 10), token2, new Trade<Token, Token>.BestTradeOptions() { MaxHops = 1 });
+        Assert.Single(result);
+        Assert.Single( result[0].Swaps[0].Route.Pools);
+        Assert.Equal([token0, token2], result[0].Swaps[0].Route.TokenPath);
     }
 
     [Fact]
     public async Task BestTradeExactIn_InsufficientInputForOnePool()
     {
-        var result = await Trade<Token, Token>.BestTradeExactIn(new List<Pool> { pool_0_1, pool_0_2, pool_1_2 }, CurrencyAmount<Token>.FromRawAmount(token0, 1), token2);
+        var result = await Trade<Token, Token>.BestTradeExactIn([pool_0_1, pool_0_2, pool_1_2], CurrencyAmount<Token>.FromRawAmount(token0, 1), token2);
+
         Assert.Equal(2, result.Count);
-        Assert.Equal(1, result[0].Swaps[0].Route.Pools.Count);
-        Assert.Equal(new List<Token> { token0, token2 }, result[0].Swaps[0].Route.TokenPath);
+        Assert.Single(result[0].Swaps[0].Route.Pools);
+        Assert.Equal([token0, token2], result[0].Swaps[0].Route.TokenPath);
         Assert.Equal(CurrencyAmount<Token>.FromRawAmount(token2, 0), result[0].OutputAmount);
     }
 
     [Fact]
     public async Task BestTradeExactIn_RespectsN()
     {
-        //var result = await Trade<Token, Token>.BestTradeExactIn(new List<Pool> { pool_0_1, pool_0_2, pool_1_2 }, CurrencyAmount<Token>.FromRawAmount(token0, 10), token2, maxNumResults: 1);
-        //Assert.Single(result);
+        var result = await Trade<Token, Token>.BestTradeExactIn([pool_0_1, pool_0_2, pool_1_2], CurrencyAmount<Token>.FromRawAmount(token0, 10), token2, new Trade<Token, Token>.BestTradeOptions() { MaxHops = 1 });
+        Assert.Single(result);
     }
 
     [Fact]
     public async Task BestTradeExactIn_NoPath()
     {
-        var result = await Trade<Token, Token>.BestTradeExactIn(new List<Pool> { pool_0_1, pool_0_3, pool_1_3 }, CurrencyAmount<Token>.FromRawAmount(token0, 10), token2);
+        var result = await Trade<Token, Token>.BestTradeExactIn([pool_0_1, pool_0_3, pool_1_3],
+            CurrencyAmount<Token>.FromRawAmount(token0, 10), token2);
         Assert.Empty(result);
     }
 
     [Fact]
     public async Task BestTradeExactIn_WorksForEtherCurrencyInput()
     {
-        var result = await Trade<Ether, Token>.BestTradeExactIn(new List<Pool> { pool_weth_0, pool_0_1, pool_0_3, pool_1_3 }, CurrencyAmount<Token>.FromRawAmount(Ether.OnChain(1), 100), token3);
+        var result = await Trade<Ether, Token>.BestTradeExactIn([pool_weth_0, pool_0_1, pool_0_3, pool_1_3],
+            CurrencyAmount<Token>.FromRawAmount(Ether.OnChain(1), 100), token3);
         Assert.Equal(2, result.Count);
         Assert.Equal(ETHER, result[0].InputAmount.Currency);
-        Assert.Equal(new List<Token> { Weth9.Tokens[0], token0, token1, token3 }, result[0].Swaps[0].Route.TokenPath);
+        Assert.Equal([Weth9.Tokens[1], token0, token1, token3], result[0].Swaps[0].Route.TokenPath);
         Assert.Equal(token3, result[0].OutputAmount.Currency);
         Assert.Equal(ETHER, result[1].InputAmount.Currency);
-        Assert.Equal(new List<Token> { Weth9.Tokens[0], token0, token3 }, result[1].Swaps[0].Route.TokenPath);
+        Assert.Equal([Weth9.Tokens[1], token0, token3], result[1].Swaps[0].Route.TokenPath);
         Assert.Equal(token3, result[1].OutputAmount.Currency);
     }
 
     [Fact]
     public async Task BestTradeExactIn_WorksForEtherCurrencyOutput()
     {
-        var result = await Trade<Token, Ether>.BestTradeExactIn(new List<Pool> { pool_weth_0, pool_0_1, pool_0_3, pool_1_3 }, CurrencyAmount<Token>.FromRawAmount(token3, 100), ETHER);
+        var result = await Trade<Token, Ether>.BestTradeExactIn([pool_weth_0, pool_0_1, pool_0_3, pool_1_3],
+            CurrencyAmount<Token>.FromRawAmount(token3, 100), ETHER);
         Assert.Equal(2, result.Count);
         Assert.Equal(token3, result[0].InputAmount.Currency);
-        Assert.Equal(new List<Token> { token3, token0, Weth9.Tokens[0] }, result[0].Swaps[0].Route.TokenPath);
+        Assert.Equal([token3, token0, Weth9.Tokens[1]], result[0].Swaps[0].Route.TokenPath);
         Assert.Equal(ETHER, result[0].OutputAmount.Currency);
         Assert.Equal(token3, result[1].InputAmount.Currency);
-        Assert.Equal(new List<Token> { token3, token1, token0, Weth9.Tokens[0] }, result[1].Swaps[0].Route.TokenPath);
+        Assert.Equal([token3, token1, token0, Weth9.Tokens[1]], result[1].Swaps[0].Route.TokenPath);
         Assert.Equal(ETHER, result[1].OutputAmount.Currency);
     }
 
     [Fact]
     public async Task MaximumAmountIn_ThrowsIfLessThan0()
     {
-        var exactIn = await Trade<Token, Token>.FromRoute(new Route<Token,Token>(new List<Pool> { pool_0_1, pool_1_2 }, token0, token2), CurrencyAmount<Token>.FromRawAmount(token0, 100), TradeType.EXACT_INPUT);
-        Assert.Throws<Exception>(() => exactIn.MaximumAmountIn(new Percent(-1, 100)));
+        var exactIn = await Trade<Token, Token>.FromRoute(new Route<Token, Token>([pool_0_1, pool_1_2], token0, token2),
+            CurrencyAmount<Token>.FromRawAmount(token0, 100), TradeType.EXACT_INPUT);
+        Assert.Throws<ArgumentException>(() => exactIn.MaximumAmountIn(new Percent(-1, 100)));
     }
 
     [Fact]
     public async Task MaximumAmountIn_ReturnsExactIf0()
     {
-        var exactIn = await Trade<Token, Token>.FromRoute(new Route<Token,Token>(new List<Pool> { pool_0_1, pool_1_2 }, token0, token2), CurrencyAmount<Token>.FromRawAmount(token0, 100), TradeType.EXACT_INPUT);
+        var exactIn = await Trade<Token, Token>.FromRoute(new Route<Token, Token>([pool_0_1, pool_1_2], token0, token2),
+            CurrencyAmount<Token>.FromRawAmount(token0, 100), TradeType.EXACT_INPUT);
         Assert.Equal(exactIn.InputAmount, exactIn.MaximumAmountIn(new Percent(0, 100)));
     }
 
     [Fact]
     public async Task MaximumAmountIn_ReturnsExactIfNonzero()
     {
-        var exactIn = await Trade<Token, Token>.FromRoute(new Route<Token,Token>(new List<Pool> { pool_0_1, pool_1_2 }, token0, token2), CurrencyAmount<Token>.FromRawAmount(token0, 100), TradeType.EXACT_INPUT);
+        var exactIn = await Trade<Token, Token>.FromRoute(new Route<Token, Token>([pool_0_1, pool_1_2], token0, token2),
+            CurrencyAmount<Token>.FromRawAmount(token0, 100), TradeType.EXACT_INPUT);
         Assert.True(exactIn.MaximumAmountIn(new Percent(0, 100)).Equals(CurrencyAmount<Token>.FromRawAmount(token0, 100)));
         Assert.True(exactIn.MaximumAmountIn(new Percent(5, 100)).Equals(CurrencyAmount<Token>.FromRawAmount(token0, 100)));
         Assert.True(exactIn.MaximumAmountIn(new Percent(200, 100)).Equals(CurrencyAmount<Token>.FromRawAmount(token0, 100)));
@@ -689,21 +695,24 @@ public class TradeTests
     [Fact]
     public async Task MaximumAmountIn_ExactOutput_ThrowsIfLessThan0()
     {
-        var exactOut = await Trade<Token, Token>.FromRoute(new Route<Token,Token>(new List<Pool> { pool_0_1, pool_1_2 }, token0, token2), CurrencyAmount<Token>.FromRawAmount(token2, 10000), TradeType.EXACT_OUTPUT);
-        Assert.Throws<Exception>(() => exactOut.MaximumAmountIn(new Percent(-1, 10000)));
+        var exactOut = await Trade<Token, Token>.FromRoute(new Route<Token, Token>([pool_0_1, pool_1_2], token0, token2),
+            CurrencyAmount<Token>.FromRawAmount(token2, 10000), TradeType.EXACT_OUTPUT);
+        Assert.Throws<ArgumentException>(() => exactOut.MaximumAmountIn(new Percent(-1, 10000)));
     }
 
     [Fact]
     public async Task MaximumAmountIn_ExactOutput_ReturnsExactIf0()
     {
-        var exactOut = await Trade<Token, Token>.FromRoute(new Route<Token,Token>(new List<Pool> { pool_0_1, pool_1_2 }, token0, token2), CurrencyAmount<Token>.FromRawAmount(token2, 10000), TradeType.EXACT_OUTPUT);
+        var exactOut = await Trade<Token, Token>.FromRoute(new Route<Token, Token>([pool_0_1, pool_1_2], token0, token2),
+            CurrencyAmount<Token>.FromRawAmount(token2, 10000), TradeType.EXACT_OUTPUT);
         Assert.Equal(exactOut.InputAmount, exactOut.MaximumAmountIn(new Percent(0, 10000)));
     }
 
     [Fact]
     public async Task MaximumAmountIn_ExactOutput_ReturnsSlippageAmountIfNonzero()
     {
-        var exactOut = await Trade<Token, Token>.FromRoute(new Route<Token,Token>(new List<Pool> { pool_0_1, pool_1_2 }, token0, token2), CurrencyAmount<Token>.FromRawAmount(token2, 10000), TradeType.EXACT_OUTPUT);
+        var exactOut = await Trade<Token, Token>.FromRoute(new Route<Token, Token>([pool_0_1, pool_1_2], token0, token2),
+            CurrencyAmount<Token>.FromRawAmount(token2, 10000), TradeType.EXACT_OUTPUT);
         Assert.True(exactOut.MaximumAmountIn(new Percent(0, 100)).Equals(CurrencyAmount<Token>.FromRawAmount(token0, 15488)));
         Assert.True(exactOut.MaximumAmountIn(new Percent(5, 100)).Equals(CurrencyAmount<Token>.FromRawAmount(token0, 16262)));
         Assert.True(exactOut.MaximumAmountIn(new Percent(200, 100)).Equals(CurrencyAmount<Token>.FromRawAmount(token0, 46464)));
@@ -712,21 +721,24 @@ public class TradeTests
     [Fact]
     public async Task MinimumAmountOut_ThrowsIfLessThan0()
     {
-        var exactIn = await Trade<Token, Token>.FromRoute(new Route<Token,Token>(new List<Pool> { pool_0_1, pool_1_2 }, token0, token2), CurrencyAmount<Token>.FromRawAmount(token0, 10000), TradeType.EXACT_INPUT);
-        Assert.Throws<Exception>(() => exactIn.MinimumAmountOut(new Percent(-1, 100)));
+        var exactIn = await Trade<Token, Token>.FromRoute(new Route<Token, Token>([pool_0_1, pool_1_2], token0, token2),
+            CurrencyAmount<Token>.FromRawAmount(token0, 10000), TradeType.EXACT_INPUT);
+        Assert.Throws<ArgumentException>(() => exactIn.MinimumAmountOut(new Percent(-1, 100)));
     }
 
     [Fact]
     public async Task MinimumAmountOut_ReturnsExactIf0()
     {
-        var exactIn = await Trade<Token, Token>.FromRoute(new Route<Token,Token>(new List<Pool> { pool_0_1, pool_1_2 }, token0, token2), CurrencyAmount<Token>.FromRawAmount(token0, 10000), TradeType.EXACT_INPUT);
+        var exactIn = await Trade<Token, Token>.FromRoute(new Route<Token, Token>([pool_0_1, pool_1_2], token0, token2),
+            CurrencyAmount<Token>.FromRawAmount(token0, 10000), TradeType.EXACT_INPUT);
         Assert.Equal(exactIn.OutputAmount, exactIn.MinimumAmountOut(new Percent(0, 10000)));
     }
 
     [Fact]
     public async Task MinimumAmountOut_ReturnsExactIfNonzero()
     {
-        var exactIn = await Trade<Token, Token>.FromRoute(new Route<Token,Token>(new List<Pool> { pool_0_1, pool_1_2 }, token0, token2), CurrencyAmount<Token>.FromRawAmount(token0, 10000), TradeType.EXACT_INPUT);
+        var exactIn = await Trade<Token, Token>.FromRoute(new Route<Token, Token>([pool_0_1, pool_1_2], token0, token2),
+            CurrencyAmount<Token>.FromRawAmount(token0, 10000), TradeType.EXACT_INPUT);
         Assert.Equal(CurrencyAmount<Token>.FromRawAmount(token2, 7004), exactIn.MinimumAmountOut(new Percent(0, 100)));
         Assert.Equal(CurrencyAmount<Token>.FromRawAmount(token2, 6670), exactIn.MinimumAmountOut(new Percent(5, 100)));
         Assert.Equal(CurrencyAmount<Token>.FromRawAmount(token2, 2334), exactIn.MinimumAmountOut(new Percent(200, 100)));
@@ -735,21 +747,24 @@ public class TradeTests
     [Fact]
     public async Task MinimumAmountOut_ExactOutput_ThrowsIfLessThan0()
     {
-        var exactOut = await Trade<Token, Token>.FromRoute(new Route<Token,Token>(new List<Pool> { pool_0_1, pool_1_2 }, token0, token2), CurrencyAmount<Token>.FromRawAmount(token2, 100), TradeType.EXACT_OUTPUT);
-        Assert.Throws<Exception>(() => exactOut.MinimumAmountOut(new Percent(-1, 100)));
+        var exactOut = await Trade<Token, Token>.FromRoute(new Route<Token, Token>([pool_0_1, pool_1_2], token0, token2),
+            CurrencyAmount<Token>.FromRawAmount(token2, 100), TradeType.EXACT_OUTPUT);
+        Assert.Throws<ArgumentException>(() => exactOut.MinimumAmountOut(new Percent(-1, 100)));
     }
 
     [Fact]
     public async Task MinimumAmountOut_ExactOutput_ReturnsExactIf0()
     {
-        var exactOut = await Trade<Token, Token>.FromRoute(new Route<Token,Token>(new List<Pool> { pool_0_1, pool_1_2 }, token0, token2), CurrencyAmount<Token>.FromRawAmount(token2, 100), TradeType.EXACT_OUTPUT);
+        var exactOut = await Trade<Token, Token>.FromRoute(new Route<Token, Token>([pool_0_1, pool_1_2], token0, token2),
+            CurrencyAmount<Token>.FromRawAmount(token2, 100), TradeType.EXACT_OUTPUT);
         Assert.Equal(exactOut.OutputAmount, exactOut.MinimumAmountOut(new Percent(0, 100)));
     }
 
     [Fact]
     public async Task MinimumAmountOut_ExactOutput_ReturnsSlippageAmountIfNonzero()
     {
-        var exactOut = await Trade<Token, Token>.FromRoute(new Route<Token,Token>(new List<Pool> { pool_0_1, pool_1_2 }, token0, token2), CurrencyAmount<Token>.FromRawAmount(token2, 100), TradeType.EXACT_OUTPUT);
+        var exactOut = await Trade<Token, Token>.FromRoute(new Route<Token, Token>([pool_0_1, pool_1_2], token0, token2),
+            CurrencyAmount<Token>.FromRawAmount(token2, 100), TradeType.EXACT_OUTPUT);
         Assert.True(exactOut.MinimumAmountOut(new Percent(0, 100)).Equals(CurrencyAmount<Token>.FromRawAmount(token2, 100)));
         Assert.True(exactOut.MinimumAmountOut(new Percent(5, 100)).Equals(CurrencyAmount<Token>.FromRawAmount(token2, 100)));
         Assert.True(exactOut.MinimumAmountOut(new Percent(200, 100)).Equals(CurrencyAmount<Token>.FromRawAmount(token2, 100)));
@@ -758,30 +773,32 @@ public class TradeTests
     [Fact]
     public async Task BestTradeExactOut_ThrowsWithEmptyPools()
     {
-        await Assert.ThrowsAsync<Exception>(() =>
-            Trade<Token, Token>.BestTradeExactOut(new List<Pool>(), token0, CurrencyAmount<Token>.FromRawAmount(token2, 100))
+        await Assert.ThrowsAsync<ArgumentException>(() =>
+            Trade<Token, Token>.BestTradeExactOut([], token0, CurrencyAmount<Token>.FromRawAmount(token2, 100))
         );
     }
 
     [Fact]
     public async Task BestTradeExactOut_ThrowsWithMaxHopsOf0()
     {
-        //await Assert.ThrowsAsync<Exception>(() =>
-        //    Trade<Token, Token>.BestTradeExactOut(new List<Pool> { pool_0_2 }, token0, CurrencyAmount<Token>.FromRawAmount(token2, 100), maxHops: 0)
-        //);
+        await Assert.ThrowsAsync<ArgumentException>(() =>
+            Trade<Token, Token>.BestTradeExactOut([pool_0_2], token0, CurrencyAmount<Token>.FromRawAmount(token2, 100),
+                new Trade<Token, Token>.BestTradeOptions { MaxHops = 0 })
+        );
     }
 
     [Fact]
     public async Task BestTradeExactOut_ProvidesBestRoute()
     {
-        var result = await Trade<Token, Token>.BestTradeExactOut(new List<Pool> { pool_0_1, pool_0_2, pool_1_2 }, token0, CurrencyAmount<Token>.FromRawAmount(token2, 10000));
+        var result = await Trade<Token, Token>.BestTradeExactOut([pool_0_1, pool_0_2, pool_1_2], token0,
+            CurrencyAmount<Token>.FromRawAmount(token2, 10000));
         Assert.Equal(2, result.Count);
         Assert.Equal(1, result[0].Swaps[0].Route.Pools.Count);
-        Assert.Equal(new List<Token> { token0, token2 }, result[0].Swaps[0].Route.TokenPath);
+        Assert.Equal([token0, token2], result[0].Swaps[0].Route.TokenPath);
         Assert.True(result[0].InputAmount.Equals(CurrencyAmount<Token>.FromRawAmount(token0, 10032)));
         Assert.True(result[0].OutputAmount.Equals(CurrencyAmount<Token>.FromRawAmount(token2, 10000)));
         Assert.Equal(2, result[1].Swaps[0].Route.Pools.Count);
-        Assert.Equal(new List<Token> { token0, token1, token2 }, result[1].Swaps[0].Route.TokenPath);
+        Assert.Equal([token0, token1, token2], result[1].Swaps[0].Route.TokenPath);
         Assert.True(result[1].InputAmount.Equals(CurrencyAmount<Token>.FromRawAmount(token0, 15488)));
         Assert.True(result[1].OutputAmount.Equals(CurrencyAmount<Token>.FromRawAmount(token2, 10000)));
     }
@@ -789,50 +806,52 @@ public class TradeTests
     [Fact]
     public async Task BestTradeExactOut_RespectsMaxHops()
     {
-        //var result = await Trade<Token, Token>.BestTradeExactOut(new List<Pool> { pool_0_1, pool_0_2, pool_1_2 }, token0, CurrencyAmount<Token>.FromRawAmount(token2, 10), maxHops: 1);
-        //Assert.Single(result);
-        //Assert.Equal(1, result[0].Swaps[0].Route.Pools.Count);
-        //Assert.Equal(new List<Token> { token0, token2 }, result[0].Swaps[0].Route.TokenPath);
+        var result = await Trade<Token, Token>.BestTradeExactOut([pool_0_1, pool_0_2, pool_1_2], token0, CurrencyAmount<Token>.FromRawAmount(token2, 10), new Trade<Token, Token>.BestTradeOptions() {MaxHops= 1});
+        Assert.Single(result);
+        Assert.Single(result[0].Swaps[0].Route.Pools);
+        Assert.Equal([token0, token2], result[0].Swaps[0].Route.TokenPath);
     }
 
     [Fact]
     public async Task BestTradeExactOut_RespectsN()
     {
-        //var result = await Trade<Token, Token>.BestTradeExactOut(new List<Pool> { pool_0_1, pool_0_2, pool_1_2 }, token0, CurrencyAmount<Token>.FromRawAmount(token2, 10), maxNumResults: 1);
-        //Assert.Single(result);
+        var result = await Trade<Token, Token>.BestTradeExactOut([pool_0_1, pool_0_2, pool_1_2], token0, CurrencyAmount<Token>.FromRawAmount(token2, 10), new Trade<Token, Token>.BestTradeOptions() { MaxHops = 1 });
+        Assert.Single(result);
     }
 
     [Fact]
     public async Task BestTradeExactOut_NoPath()
     {
-        var result = await Trade<Token, Token>.BestTradeExactOut(new List<Pool> { pool_0_1, pool_0_3, pool_1_3 }, token0, CurrencyAmount<Token>.FromRawAmount(token2, 10));
+        var result = await Trade<Token, Token>.BestTradeExactOut([pool_0_1, pool_0_3, pool_1_3], token0,
+            CurrencyAmount<Token>.FromRawAmount(token2, 10));
         Assert.Empty(result);
     }
 
     [Fact]
     public async Task BestTradeExactOut_WorksForEtherCurrencyInput()
     {
-        var result = await Trade<Ether, Token>.BestTradeExactOut(new List<Pool> { pool_weth_0, pool_0_1, pool_0_3, pool_1_3 }, ETHER, CurrencyAmount<Token>.FromRawAmount(token3, 10000));
+        var result = await Trade<Ether, Token>.BestTradeExactOut([pool_weth_0, pool_0_1, pool_0_3, pool_1_3], ETHER,
+            CurrencyAmount<Token>.FromRawAmount(token3, 10000));
         Assert.Equal(2, result.Count);
         Assert.Equal(ETHER, result[0].InputAmount.Currency);
-        Assert.Equal(new List<Token> { Weth9.Tokens[0], token0, token1, token3 }, result[0].Swaps[0].Route.TokenPath);
+        Assert.Equal([Weth9.Tokens[1], token0, token1, token3], result[0].Swaps[0].Route.TokenPath);
         Assert.Equal(token3, result[0].OutputAmount.Currency);
         Assert.Equal(ETHER, result[1].InputAmount.Currency);
-        Assert.Equal(new List<Token> { Weth9.Tokens[0], token0, token3 }, result[1].Swaps[0].Route.TokenPath);
+        Assert.Equal([Weth9.Tokens[1], token0, token3], result[1].Swaps[0].Route.TokenPath);
         Assert.Equal(token3, result[1].OutputAmount.Currency);
     }
 
     [Fact]
     public async Task BestTradeExactOut_WorksForEtherCurrencyOutput()
     {
-        var result = await Trade<Token, Ether>.BestTradeExactOut(new List<Pool> { pool_weth_0, pool_0_1, pool_0_3, pool_1_3 }, token3, CurrencyAmount<Token>.FromRawAmount(Ether.OnChain(1), 100));
+        var result = await Trade<Token, Ether>.BestTradeExactOut([pool_weth_0, pool_0_1, pool_0_3, pool_1_3], token3,
+            CurrencyAmount<Token>.FromRawAmount(Ether.OnChain(1), 100));
         Assert.Equal(2, result.Count);
         Assert.Equal(token3, result[0].InputAmount.Currency);
-        Assert.Equal(new List<Token> { token3, token0, Weth9.Tokens[0] }, result[0].Swaps[0].Route.TokenPath);
+        Assert.Equal([token3, token0, Weth9.Tokens[1]], result[0].Swaps[0].Route.TokenPath);
         Assert.Equal(ETHER, result[0].OutputAmount.Currency);
         Assert.Equal(token3, result[1].InputAmount.Currency);
-        Assert.Equal(new List<Token> { token3, token1, token0, Weth9.Tokens[0] }, result[1].Swaps[0].Route.TokenPath);
+        Assert.Equal([token3, token1, token0, Weth9.Tokens[1]], result[1].Swaps[0].Route.TokenPath);
         Assert.Equal(ETHER, result[1].OutputAmount.Currency);
     }
-
 }

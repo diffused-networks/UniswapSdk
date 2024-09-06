@@ -94,6 +94,7 @@ public class Pool
         var zeroForOne = inputAmount.Currency.Equals(Token0);
 
         var (outputAmount, sqrtRatioX96, liquidity, tickCurrent) = await Swap(zeroForOne, inputAmount.Quotient, sqrtPriceLimitX96);
+
         var outputToken = zeroForOne ? Token1 : Token0;
         return (CurrencyAmount<Token>.FromRawAmount(outputToken, outputAmount * Constants.NEGATIVE_ONE),
             new Pool(Token0, Token1, Fee, sqrtRatioX96, liquidity, tickCurrent, TickDataProvider));

@@ -26,15 +26,15 @@ public abstract class SwapRouter
         }
 
         var sampleTrade = trades.First();
-        var tokenIn = sampleTrade.InputAmount.Currency.Wrapped;
-        var tokenOut = sampleTrade.OutputAmount.Currency.Wrapped;
+        var tokenIn = sampleTrade.InputAmount.Currency.Wrapped();
+        var tokenOut = sampleTrade.OutputAmount.Currency.Wrapped();
 
         // All trades should have the same starting and ending token.
-        if (!trades.All(trade => trade.InputAmount.Currency.Wrapped.Equals(tokenIn)))
+        if (!trades.All(trade => trade.InputAmount.Currency.Wrapped().Equals(tokenIn)))
         {
             throw new InvalidOperationException("TOKEN_IN_DIFF");
         }
-        if (!trades.All(trade => trade.OutputAmount.Currency.Wrapped.Equals(tokenOut)))
+        if (!trades.All(trade => trade.OutputAmount.Currency.Wrapped().Equals(tokenOut)))
         {
             throw new InvalidOperationException("TOKEN_OUT_DIFF");
         }

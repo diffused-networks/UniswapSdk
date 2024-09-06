@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using System.Numerics;
+using ExtendedNumerics;
 
 namespace Uniswap.Sdk.Core.Entities.Fractions;
 
@@ -10,11 +11,11 @@ public class Fraction(BigInteger numerator, BigInteger denominator = default):IE
 
     public BigInteger Quotient => BigInteger.Divide(Numerator, Denominator);
 
-    public Fraction Remainder => new(BigInteger.Remainder(Numerator, Denominator), Denominator);
+    public Fraction Remainder() => new(BigInteger.Remainder(Numerator, Denominator), Denominator);
 
-    public Fraction AsFraction => new(Numerator, Denominator);
+    public Fraction AsFraction() => new(Numerator, Denominator);
 
-    private static Fraction TryParseFraction(object? fractionish)
+    protected static Fraction TryParseFraction(object? fractionish)
     {
         if (fractionish is BigInteger bigInt)
         {
@@ -110,8 +111,9 @@ public class Fraction(BigInteger numerator, BigInteger denominator = default):IE
         {
             throw new ArgumentException($"{significantDigits} is not a positive integer.");
         }
-
-        var quotient = SetSigFigs((decimal)Numerator / (decimal)Denominator, significantDigits, rounding);
+        // From BigRationalLibrary
+ ;
+        var quotient = SetSigFigs((decimal)new BigRational(Numerator, Denominator) , significantDigits, rounding);
         
         return quotient.ToString(format);
     }

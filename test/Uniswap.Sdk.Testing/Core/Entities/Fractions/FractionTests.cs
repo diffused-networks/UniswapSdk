@@ -16,9 +16,9 @@ public class FractionTests
     [Fact]
     public void Remainder_ReturnsFractionAfterDivision()
     {
-        Assert.Equal(new Fraction(BigInteger.Parse("2"), BigInteger.Parse("3")), new Fraction(BigInteger.Parse("8"), BigInteger.Parse("3")).Remainder);
-        Assert.Equal(new Fraction(BigInteger.Parse("0"), BigInteger.Parse("4")), new Fraction(BigInteger.Parse("12"), BigInteger.Parse("4")).Remainder);
-        Assert.Equal(new Fraction(BigInteger.Parse("1"), BigInteger.Parse("5")), new Fraction(BigInteger.Parse("16"), BigInteger.Parse("5")).Remainder);
+        Assert.Equal(new Fraction(BigInteger.Parse("2"), BigInteger.Parse("3")), new Fraction(BigInteger.Parse("8"), BigInteger.Parse("3")).Remainder());
+        Assert.Equal(new Fraction(BigInteger.Parse("0"), BigInteger.Parse("4")), new Fraction(BigInteger.Parse("12"), BigInteger.Parse("4")).Remainder());
+        Assert.Equal(new Fraction(BigInteger.Parse("1"), BigInteger.Parse("5")), new Fraction(BigInteger.Parse("16"), BigInteger.Parse("5")).Remainder());
     }
 
     [Fact]
@@ -127,7 +127,7 @@ public class FractionTests
     public void AsFraction_ReturnsEquivalentButNotSameReferenceFraction()
     {
         var f = new Fraction(1, 2);
-        Assert.Equal(f, f.AsFraction);
-        Assert.NotSame(f, f.AsFraction);
+        Assert.Equal(f, f.AsFraction());
+        Assert.NotSame(f, f.AsFraction());
     }
 }

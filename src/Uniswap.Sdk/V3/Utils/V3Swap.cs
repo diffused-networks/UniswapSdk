@@ -90,6 +90,8 @@ public static class V3Swap
 
             step.SqrtPriceNextX96 = TickMath.GetSqrtRatioAtTick(step.TickNext);
 
+         
+
             (state.SqrtPriceX96, step.AmountIn, step.AmountOut, step.FeeAmount) = SwapMath.ComputeSwapStep(
                 state.SqrtPriceX96,
                 (zeroForOne
@@ -130,6 +132,8 @@ public static class V3Swap
             else if (state.SqrtPriceX96 != step.SqrtPriceStartX96)
             {
                 state.Tick = TickMath.GetTickAtSqrtRatio(state.SqrtPriceX96);
+
+              
             }
 
             cnt++;
@@ -141,6 +145,8 @@ public static class V3Swap
 
 
         }
+
+        //Console.WriteLine("AmountCalculated: {0},{1},{2},{3}", state.AmountCalculated, state.SqrtPriceX96, state.Liquidity, state.Tick);
 
         return (state.AmountCalculated, state.SqrtPriceX96, state.Liquidity, state.Tick);
     }

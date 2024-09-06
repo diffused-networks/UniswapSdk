@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace Uniswap.Sdk.Core.Entities.Fractions;
 
-public class Price<TBase, TQuote> : Fraction where TBase : BaseCurrency where TQuote : BaseCurrency
+public class Price<TBase, TQuote> : Fraction,IEquatable<Price<TBase, TQuote>> where TBase : BaseCurrency where TQuote : BaseCurrency
 {
     public TBase BaseCurrency { get; } // input i.e. denominator
     public TQuote QuoteCurrency { get; } // output i.e. numerator
@@ -68,5 +68,11 @@ public class Price<TBase, TQuote> : Fraction where TBase : BaseCurrency where TQ
     public new string ToFixed(int decimalPlaces = 4, string? format = null, Rounding rounding = Rounding.ROUND_HALF_UP)
     {
         return AdjustedForDecimals.ToFixed(decimalPlaces, format, rounding);
+    }
+
+    public bool Equals(Price<TBase, TQuote>? other)
+    {
+        var otherParsed = TryParseFraction(other);
+        return Numerator * otherParsed.Denominator == otherParsed.Numerator * Denominator;
     }
 }

@@ -4,14 +4,13 @@ public class Ether : NativeCurrency
 {
     protected Ether(int chainId) : base(chainId, 18, "ETH", "Ether") { }
 
-    public override Token Wrapped
+    public override Token Wrapped()
     {
-        get
-        {
+
             var weth9 = Weth9.Tokens[this.ChainId];
             if (weth9 == null) throw new InvalidOperationException("WRAPPED");
             return weth9;
-        }
+     
     }
 
     private static Dictionary<int, Ether> _etherCache = new Dictionary<int, Ether>();

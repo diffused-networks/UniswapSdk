@@ -78,23 +78,31 @@ public class CurrencyAmount<T> : Fraction, IEquatable<CurrencyAmount<T>> where T
         return base.Divide(new Fraction(DecimalScale)).ToFixed(decimalPlaces, format, rounding);
     }
 
-    public string ToExact(string format = "{0}")
+    public string ToExact(string format = "0.#############################")
     {
-        return string.Format(format, ((decimal)Quotient / (decimal)DecimalScale).ToString("G" + Currency.Decimals, CultureInfo.InvariantCulture));
+        return ((decimal)Quotient / (decimal)DecimalScale).ToString("F"+ Currency.Decimals, CultureInfo.InvariantCulture);
     }
 
-    public CurrencyAmount<BaseCurrency>? AsBaseCurrency => new(this.Currency, Numerator, Denominator);
-
-
-    public CurrencyAmount<Token>? Wrapped
+    public CurrencyAmount<BaseCurrency>? AsBaseCurrency() => new(this.Currency, Numerator, Denominator)
     {
-        get
-        {
-            if (Currency is Token)
-                return this as CurrencyAmount<Token>;
 
-            return FromFractionalAmount(Currency.Wrapped, Numerator, Denominator);
-        }
+    };
+
+
+    public CurrencyAmount<Token>? Wrapped()
+    {
+
+            if (Currency is Token)
+            {
+               var x = this as CurrencyAmount<Token>;
+
+                return x ?? FromFractionalAmount(Currency.Wrapped(), Numerator, Denominator);
+            }
+
+
+            return FromFractionalAmount(Currency.Wrapped(), Numerator, Denominator);
+
+ 
     }
 
     public bool Equals(CurrencyAmount<T>? other)
