@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/grinidx/UniswapSharp/main/assets/logo.png" alt="UniswapSharp" width="128" height="128">
+</p>
+
 <h1 align="center">UniswapSharp</h1>
 
 <p align="center">

@@ -16,6 +16,7 @@
     <RepositoryUrl>https://github.com/grinidx/UniswapSharp</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>icon.png</PackageIcon>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <!-- The release workflow tags releases as `v*` (e.g. v1.0.0-rc.1); tell MinVer to expect that prefix,
          otherwise it ignores the tag and falls back to a 0.0.0-alpha height version. -->
@@ -29,6 +30,8 @@
 
   <ItemGroup>
     <None Include="../../README.md" Pack="true" PackagePath="/" />
+    <!-- 128x128 per nuget.org's icon guidance; the 1024px master lives at assets/logo.png. -->
+    <None Include="../../assets/icon.png" Pack="true" PackagePath="/" />
   </ItemGroup>
 
   <ItemGroup>
