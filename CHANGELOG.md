@@ -6,6 +6,22 @@ All notable changes to this project are documented here. The format is based on
 
 ## [Unreleased]
 
+## [2.0.1] - 2026-09-06
+
+Packaging and documentation only — **no library code changed**, so the API and every byte of
+calldata 2.0.0 produces are identical. Released so the improved NuGet listing goes live.
+
+### Added
+- A logo. `assets/logo.png` (1024px master) heads the README; `assets/icon.png` (128px) ships as
+  the NuGet package icon, replacing the generic placeholder on the package listing. The mark is an
+  abstract constant-product curve — deliberately unlike Uniswap's own branding, since this is an
+  independent port that is not affiliated with Uniswap Labs.
+
+### Changed
+- README rewritten: worked examples for the three main jobs (pool math, V3 swap calldata, Permit2
+  signing) — each compiled and run against the published package — plus a design-notes section, a
+  versioning policy, and a task-to-test-file index. Corrects a stale test count.
+
 ## [2.0.0] - 2026-09-03
 
 Upstream parity release: the port is brought from `Uniswap/sdks@6081b3e` (2026-07-09) to
@@ -163,6 +179,7 @@ Preceded by `1.0.0-rc.1` and `1.0.0-rc.2`, both published and smoke-tested from 
   (`contracts/**`) and Foundry Solidity suites are intentionally not ported. See
   [docs/PORTING.md](docs/PORTING.md) for the full list of skips and intentional divergences.
 
-[Unreleased]: https://github.com/grinidx/UniswapSharp/compare/v2.0.0...HEAD
+[Unreleased]: https://github.com/grinidx/UniswapSharp/compare/v2.0.1...HEAD
+[2.0.1]: https://github.com/grinidx/UniswapSharp/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/grinidx/UniswapSharp/compare/v1.0.0...v2.0.0
 [1.0.0]: https://github.com/grinidx/UniswapSharp/releases/tag/v1.0.0
