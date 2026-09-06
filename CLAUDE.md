@@ -12,7 +12,7 @@ the V3 periphery contracts.
 - V3 core (entities + math) is implemented and unit-tested
 - 1920 xUnit v3 tests; all passing (see Outstanding work)
 - All calldata / action-builder stubs are now implemented and test-covered (no `NotImplementedException` left)
-- Published to NuGet as `UniswapSharp` (latest: **2.0.0**)
+- Published to NuGet as `UniswapSharp` (latest: **2.0.1**)
 
 ## Layout
 
